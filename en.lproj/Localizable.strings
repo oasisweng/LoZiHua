@@ -1,0 +1,13 @@
+/* 
+  Localizable.strings
+  ChangWeiBo
+
+  Created by Dingzhong Weng on 5/20/13.
+  Copyright (c) 2013 Dingzhong Weng. All rights reserved.
+*/
+
+/* doneBtn normal state title */
+"doneBtn normal title path" = "doneBtn.png";
+
+/* doneBtn highlight state title */
+"doneBtn highlight title path" = "doneBtnH.png";
