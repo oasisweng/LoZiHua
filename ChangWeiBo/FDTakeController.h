@@ -13,6 +13,8 @@
 @protocol FDTakeDelegate <NSObject>
 
 @optional
+- (void)takeController:(FDTakeController *)controller didBegin:(BOOL)madeAttempt;
+- (void)takeControllerDidEnd:(FDTakeController *)controller;
 - (void)takeController:(FDTakeController *)controller didCancelAfterAttempting:(BOOL)madeAttempt;
 - (void)takeController:(FDTakeController *)controller didFailAfterAttempting:(BOOL)madeAttempt;
 - (void)takeController:(FDTakeController *)controller gotPhoto:(UIImage *)photo withInfo:(NSDictionary *)info;

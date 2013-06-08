@@ -9,8 +9,8 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 #import "LLCompletionViewController.h"
-#import "LLUIImage+Resize.h"
-#import "LLRTEGestureRecognizer.h"
+#import "UIImage+Resize.h"
+#import "RTEGestureRecognizer.h"
 #import "FDTakeController.h"
 
 #define LLCoreTextAlignmentLeft 1
@@ -18,7 +18,7 @@
 #define LLCoreTextAlignmentRight 3
 #define BackUpFileName @"backup.html"
 
-@interface LLViewController : UIViewController<UIActionSheetDelegate,UIWebViewDelegate,UIGestureRecognizerDelegate,FDTakeDelegate>{
+@interface LLViewController : UIViewController<UIActionSheetDelegate,UIWebViewDelegate,UIGestureRecognizerDelegate,FDTakeDelegate,LLCompletionDelegate>{
 	NSTimer *timer;
 }
 
@@ -43,9 +43,12 @@
 @property (strong, nonatomic) IBOutlet UIButton *undoBtn;
 @property (strong, nonatomic) IBOutlet UIButton *redoBtn;
 @property (strong, nonatomic) IBOutlet UIButton *doneBtn;
+@property (strong, nonatomic) UIImageView *supportImage;
 @property (strong, nonatomic) NSTimer* backUpSaveInterval;
+@property (strong, nonatomic) NSTimer* cVDBZTimer;
 
 //main
+- (CGSize)findActualSizeOfWebView;
 - (IBAction)renderWebViewToImage;
 - (void)completionViewEnter:(UIImage*)imageToPass;
 - (void)completionViewDismissBufferZone;
@@ -66,5 +69,10 @@
 - (IBAction)setStrike:(id)sender;
 - (IBAction)setHighlight:(id)sender;
 - (IBAction)dismissWebViewKeyboard : (id)sender;
+
+//notifications
+- (void)menuWillShow:(NSNotification *)notification;
+- (void)keyboardWillShow:(NSNotification *)notification;
+- (void)keyboardWillHide:(NSNotification *)notification;
 
 @end

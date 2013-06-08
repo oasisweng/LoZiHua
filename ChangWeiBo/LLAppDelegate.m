@@ -17,7 +17,7 @@
 	 http://open.weibo.com上注册新浪微博开放平台应用，并将相关信息填写到以下字段
     **/
 	[ShareSDK connectSinaWeiboWithAppKey:@"2323109452"
-										appSecret:@"5bd36db71e38887b3e01e560d2ebd73b"
+										appSecret:@"076bbc82624162cc35e9a610247eb3ca"
 									 redirectUri:@"https://api.weibo.com/oauth2/default.html"];
 	
 	/**
@@ -32,7 +32,7 @@
 	 **/
 	[ShareSDK connectDoubanWithAppKey:@"0187f5541cee0d160497dffc56ca2742"
 									appSecret:@"7546279bbf8dc8cd"
-								 redirectUri:@"http://www.weibo.com/oasisweng/profile?rightmod=1&wvr=5&mod=personinfo"];
+								 redirectUri:@"http://weibo.com/oasisweng"];
 	
 	/**
 	 连接人人网应用以使用相关功能，此应用需要引用RenRenConnection.framework
@@ -41,17 +41,16 @@
 	[ShareSDK connectRenRenWithAppKey:@"5aa6a65d01eb48d2a72cbd66865748b5"
 									appSecret:@"86b7ff25f81841ef85575a6b42d6c5ca"];
 	
-	
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+	// Override point for customization after application launch.
 	[ShareSDK registerApp:@"2c60e3e1a22"];
 	[self initializePlat];
-    return YES;
+	return YES;
 }
-							
+
 - (void)applicationWillResignActive:(UIApplication *)application
 {
 	// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -60,7 +59,7 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-	// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
+	// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
 	// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 }
 

@@ -96,7 +96,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
-      customArchiveName = "LoChangWeiBo"
+      customArchiveName = "LoZiHua"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>

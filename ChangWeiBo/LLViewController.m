@@ -14,6 +14,7 @@
 
 @implementation LLViewController{
 	BOOL hasBackUp;
+	BOOL shouldBackUp;
 	NSDictionary* systemProperty;
 	
 	BOOL currentBoldStatus;
@@ -59,6 +60,8 @@
 @synthesize undoBtn = _undoBtn;
 @synthesize doneBtn = _doneBtn;
 @synthesize backUpSaveInterval = _backUpSaveInterval;
+@synthesize supportImage = _supportImage;
+@synthesize cVDBZTimer = _cVDBZTimer;
 
 #pragma mark - Additions
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
@@ -113,7 +116,9 @@
 	NSURL *propertyFileURL = [bundle URLForResource:@"systemProperty" withExtension:@"plist"];
 	systemProperty = [NSDictionary dictionaryWithContentsOfURL:propertyFileURL];
 	hasBackUp = [[systemProperty objectForKey:@"hasBackUp"]boolValue];
+	shouldBackUp = [[systemProperty objectForKey:@"shouldBackUp"]boolValue];
 	
+	//load the back up if has one
 	NSURL *indexFileURL;
 	if (hasBackUp){
 		NSString *backUpPath = [systemProperty objectForKey:@"backUpFilePath"];
@@ -123,35 +128,38 @@
 	
 	[_changWeiBo loadRequest:[NSURLRequest requestWithURL:indexFileURL]];
 	
+	//save contents every five minutes
+	if (shouldBackUp){
+		_backUpSaveInterval = [NSTimer timerWithTimeInterval:60 target:self selector:@selector(saveContents) userInfo:nil repeats:YES];
+	}
+	
 	//Step 5: Replace codes from Step 2 with single function call
 	[self checkSelection:self];
 	
 	//Step 3: Add Notification To Remove UIWebAccessoryView
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuWillShow:) name:UIMenuControllerWillShowMenuNotification object:nil];
 	
 	//Step 4: Add checkSelection Methods To Validate Bar Buttons
 	timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(checkSelection:) userInfo:nil repeats:YES];
 	
 	//Step 11: Moving images
-	LLRTEGestureRecognizer *tapInterceptor = [[LLRTEGestureRecognizer alloc] init];
+	RTEGestureRecognizer *tapInterceptor = [[RTEGestureRecognizer alloc] init];
 	tapInterceptor.touchesBeganCallback = ^(NSSet *touches, UIEvent *event) {
 		// Here we just get the location of the touch
 		UITouch *touch = [[event allTouches] anyObject];
 		CGPoint touchPoint = [touch locationInView:_changWeiBo];
 		
-		// What we do here is to get the element that is located at the touch point to see whether or not it is an image
+		// Check if it is an image
 		NSString *javascript = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).toString()", touchPoint.x, touchPoint.y];
 		NSString *elementAtPoint = [_changWeiBo stringByEvaluatingJavaScriptFromString:javascript];
-		
 		if ([elementAtPoint rangeOfString:@"Image"].location != NSNotFound) {
 			// We set the inital point of the image for use latter on when we actually move it
 			initialPointOfImage = touchPoint;
-			// In order to make moving the image easy we must disable scrolling otherwise the view will just scroll and prevent fully detecting movement on the image.
-			
+			// In order to make moving the image easily we must disable scrolling otherwise the view will just scroll and prevent fully detecting movement on the image.
 			//***This line is commented out also because of the suspension of moveImageTo function
 			//_changWeiBo.scrollView.scrollEnabled = NO;
-			
 		} else {
 			initialPointOfImage = CGPointZero;
 		}
@@ -162,17 +170,16 @@
 		UITouch *touch = [[event allTouches] anyObject];
 		CGPoint touchPoint = [touch locationInView:_changWeiBo];
 		
-		//**Bug solution: Touch might be negative during scroll movement bug, we need to check the touch
+		// move the image to position
 		if (touchPoint.x>=0
 			 &touchPoint.x<=_changWeiBo.frame.size.width
 			 &touchPoint.y<=_changWeiBo.frame.size.height
 			 &touchPoint.y>=0){
-			// And move that image!
-			//When we want to move Image around, it is very hard to scroll, at this moment, I have to disable this ability until we find a better way of doing it
 			//NSString *javascript = [NSString stringWithFormat:@"moveImageAtTo(%f, %f, %f, %f)", initialPointOfImage.x, initialPointOfImage.y, touchPoint.x, touchPoint.y];
 			//[_changWeiBo stringByEvaluatingJavaScriptFromString:javascript];
 		}
 		
+		// re-enable the scrolling
 		//_changWeiBo.scrollView.scrollEnabled = YES;
 		
 	};
@@ -188,31 +195,29 @@
 	//store the original frame of _changWeiBo
 	originalChangWeiBoFrame = _changWeiBo.frame;
 	
-	//disable bounces of the _changWeiBo
-	_changWeiBo.scrollView.bounces = NO;
-	
 	//edit the background of self.view
 	self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"viewFill.png"]];
 	
-	//edit the background of _optionView
+	//edit the background of _inputAccessoryView
 	_inputAccessoryView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"inputAccessoryFill.png"]];
 	
 	//edit the background of _optionView
 	_optionsView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"optionViewFill.png"]];
 	
-	//embellish the _changWeiBo so that it looks 3D
+	//edit _ChangWeiBo
 	_changWeiBo.layer.shadowColor = [[UIColor darkGrayColor]CGColor];
 	_changWeiBo.layer.shadowOpacity = 0.9f;
 	_changWeiBo.layer.shadowOffset = CGSizeMake(1, 1);
+	_changWeiBo.scrollView.bounces = NO;
 	
-	//set time interval of every five minutes, auto save
-	_backUpSaveInterval = [NSTimer timerWithTimeInterval:300 target:self selector:@selector(saveContents) userInfo:nil repeats:YES];
-	
-	//localize doneBtn
+	//edit the tile of _doneBtn
 	NSString* doneBtnNormalLocalizedImage = NSLocalizedString(@"doneBtn normal title path", @"doneBtn normal state title");
 		NSString* doneBtnHighlightLocalizedImage = NSLocalizedString(@"doneBtn highlight title path", @"doneBtn highlight state title");
 	[_doneBtn setImage:[UIImage imageNamed:doneBtnNormalLocalizedImage] forState:UIControlStateNormal];
 	[_doneBtn setImage:[UIImage imageNamed:doneBtnHighlightLocalizedImage] forState:UIControlStateHighlighted];
+	
+	//init support image
+	_supportImage = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"supportBanner.png"]];
 	
 }
 
@@ -242,68 +247,66 @@
 }
 
 // These methods are for Step 3
+- (void)menuWillShow:(NSNotification *)notification{
+	UIMenuController* menuController = [UIMenuController sharedMenuController];
+	menuController.arrowDirection = UIMenuControllerArrowUp;
+	NSLog(@"mC: arrow dir %i",menuController.arrowDirection);
+	//[menuController setMenuVisible:YES animated:YES];
+}
+
 - (void)keyboardWillShow:(NSNotification *)notification {
-	NSLog(@"keyboardWillShow");
+	// add customized accessory bar
 	[self performSelector:@selector(removeBar) withObject:nil afterDelay:0];
 	
+	// get keyboard frame
 	NSDictionary *userInfo = [notification userInfo];
-	// Get the origin of the keyboard when it's displayed.
 	NSValue* aValue = [userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
-	
-	// Get the top of the keyboard as the y coordinate of its origin in self's view's coordinate system. The bottom of the text view's frame should align with the top of the keyboard's final position.
 	CGRect keyboardRect = [aValue CGRectValue];
 	keyboardRect = [self.view convertRect:keyboardRect fromView:nil];
+	NSLog(@"kR: %@",NSStringFromCGRect(keyboardRect));
 	
-	//Insert options view
+	// insert options view
 	[self.view addSubview:_optionsView];
 	CGRect inputOptionViewFrame = _optionsView.frame;
 	inputOptionViewFrame.origin.x = 0;
 	inputOptionViewFrame.origin.y = 0;
 	_optionsView.frame = inputOptionViewFrame;
 	
-	//Determine the new position of _changWeiBo
+	// determine the new position of _changWeiBo
 	CGFloat keyboardTop = keyboardRect.origin.y;
 	CGRect newWebViewFrame = originalChangWeiBoFrame;
 	newWebViewFrame.origin.y = _optionsView.frame.size.height;
 	newWebViewFrame.size.height = self.view.frame.size.height - keyboardTop - 20;
 	
-	// Get the duration of the animation.
+	// resize _changWeiBo
 	NSValue *animationDurationValue = [userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey];
 	NSTimeInterval animationDuration;
 	[animationDurationValue getValue:&animationDuration];
-	
-	// Animate the resize of the text view's frame in sync with the keyboard's appearance.
 	[UIView beginAnimations:nil context:NULL];
-	[UIView setAnimationDuration:animationDuration];
-	[UIView setAnimationCurve:UIViewAnimationCurveLinear];
-	[UIView setAnimationBeginsFromCurrentState:YES];
-	
-	[_changWeiBo setFrame:newWebViewFrame];
-	
+	{
+		[UIView setAnimationDuration:animationDuration];
+		[UIView setAnimationCurve:UIViewAnimationCurveLinear];
+		[_changWeiBo setFrame:newWebViewFrame];
+	}
 	[UIView commitAnimations];
-	
-	
+	NSLog(@"keyboardWillShow, %@", NSStringFromCGRect(_changWeiBo.frame));
 }
 
-
 - (void)keyboardWillHide:(NSNotification *)notification {
-	/*
-	 Restore the size of the text view (fill self's view).
-	 Animate the resize so that it's in sync with the disappearance of the keyboard.
-	 */
-	
+	//remove option view
 	[_optionsView removeFromSuperview];
 	
+	
+	//restore _changWeiBo
 	[UIView beginAnimations:nil context:NULL];
 	[UIView setAnimationDuration:0.25];
 	[UIView setAnimationCurve:UIViewAnimationCurveLinear];
 	[_changWeiBo setFrame:originalChangWeiBoFrame];
 	[UIView commitAnimations];
-	
-	NSLog(@"keyboardWillHide: %@,%@", NSStringFromCGRect(_changWeiBo.frame),NSStringFromCGRect(originalChangWeiBoFrame));
+	NSLog(@"keyboardWillHide: %@", NSStringFromCGRect(_changWeiBo.frame));
 	
 	//Scroll _changWeiBo to top
-	[_changWeiBo.scrollView setContentOffset:CGPointMake(0, 0) animated:YES];
+	//[_changWeiBo.scrollView setContentOffset:CGPointMake(0, 0) animated:YES];
 	
 }
 
@@ -335,17 +338,6 @@
 
 // These methods are for Step 4
 - (void)checkSelection:(id)sender {
-	
-	//	UIMenuController *menuController = [UIMenuController sharedMenuController];
-	//	if ([menuController isMenuVisible]&&[self becomeFirstResponder]){
-	//		CGRect targetFrame = menuController.menuFrame;
-	//		targetFrame.origin.y += 100;
-	//		[menuController update];
-	//		[menuController setTargetRect:targetFrame inView:_changWeiBo];
-	//		[menuController setMenuVisible:YES animated:YES];
-	//	}
-	
-	
 	BOOL boldEnabled = [[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.queryCommandState('Bold')"] boolValue];
 	BOOL italicEnabled = [[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.queryCommandState('Italic')"] boolValue];
 	BOOL underlineEnabled = [[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.queryCommandState('Underline')"] boolValue];
@@ -370,8 +362,6 @@
 	[_highlightBtn setBackgroundImage:(isYellow)? [UIImage imageNamed:@"highlightFaceH.png"]:[UIImage imageNamed:@"highlightFace.png"] forState:UIControlStateNormal];
 	
 	//Step 6: Allow user to interact with font size
-	
-	//*add the following code just before we add the bar button items to our array*
 	int size = [[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.queryCommandValue('fontSize')"] intValue];
 	if (size == 7)
 		_fontUpBtn.enabled = NO;
@@ -382,42 +372,19 @@
 	else
 		_fontDownBtn.enabled = YES;
 	
-	//Step 7: Create Font Color Picker
-	//	NSString *foreColor = [_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.queryCommandValue('foreColor')"];
-	//	UIColor *color = [self colorFromRGBValue:foreColor];
-	//	if (color)
-	//		[_colorPicker setTintColor:color];
-	
-	//Step 8: Create Font Picker
-	//	NSString *fontName = [_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.queryCommandValue('fontName')"];
-	//	UIFont *font = [UIFont fontWithName:fontName size:[UIFont systemFontSize]];
-	//	NSDictionary* strAttrs = [[NSDictionary alloc]initWithObjectsAndKeys:font,UITextAttributeFont, nil];
-	//	NSAttributedString* str = [[NSAttributedString alloc]initWithString:@"F" attributes:strAttrs];
-	//	if (font)
-	//		 [_fontPicker setAttributedTitle:str forState:UIControlStateNormal];
-	
-	//Step 9: Redo and Undo
-	//UIBarButtonItem *undo = [[UIBarButtonItem alloc] initWithTitle:@"U" style:UIBarButtonItemStyleBordered target:self action:@selector(undo)];
-	//UIBarButtonItem *redo = [[UIBarButtonItem alloc] initWithTitle:@"R" style:UIBarButtonItemStyleBordered target:self action:@selector(redo)];
-	
+	// undo and redo
 	BOOL undoAvailable = [[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.queryCommandEnabled('undo')"] boolValue];
 	BOOL redoAvailable = [[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.queryCommandEnabled('redo')"] boolValue];
-	
 	if (!undoAvailable)
 		[_undoBtn setEnabled:NO];
 	else
 		[_undoBtn setEnabled:YES];
-	
 	if (!redoAvailable)
 		[_redoBtn setEnabled:NO];
 	else
 		[_redoBtn setEnabled:YES];
 	
-	//Step 10: Insert images
-	//Already did in the xib file
-	
-	//Step 8+: Replace if statement from Step 6 to the following lines
-	//Step 9+: Replace if statement from Step 8+ to the following lines
+	//update current selection status
 	if (currentFontSize != size || currentUndoStatus != undoAvailable || currentRedoStatus != redoAvailable || sender == self) {
 		currentFontSize = size;
 		currentUndoStatus = undoAvailable;
@@ -510,7 +477,7 @@
 	imagePickerController = [[FDTakeController alloc]init];
 	imagePickerController.delegate = self;
 	imagePickerController.allowsEditingPhoto = YES;
-	//[imagePickerController takePhotoOrChooseFromLibrary];
+	[imagePickerController takePhotoOrChooseFromLibrary];
 }
 
 static int i = 0;
@@ -554,7 +521,8 @@ static int i = 0;
 	[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.getElementById('content').focus()"];
 	
 	[_changWeiBo stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.execCommand('insertImage', false, '%@')", imagePath]];
-	//allow me to programmatically bring up keyboard
+	
+	//disallow me to programmatically bring up keyboard
 	_changWeiBo.keyboardDisplayRequiresUserAction = YES;
 	
 	i++;
@@ -564,20 +532,56 @@ static int i = 0;
 	
 }
 
+- (void)takeController:(FDTakeController *)controller didCancelAfterAttempting:(BOOL)madeAttempt
+{
+	NSLog(@"didCancelAfterAttempting, %@",madeAttempt?@"YES":@"NO");
+	//allow me to programmatically bring up keyboard
+	_changWeiBo.keyboardDisplayRequiresUserAction = NO;
+	[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.getElementById('content').focus()"];
+	//disallow me to programmatically bring up keyboard
+	_changWeiBo.keyboardDisplayRequiresUserAction = YES;
+	
+	//change button view to indicate selection
+	[_imagePicker setBackgroundImage:[UIImage imageNamed:@"cameraIcon.png"] forState:UIControlStateNormal];
+}
+
 #pragma Completion Operation Methods
 // These methods are defined to Oasis
+- (CGSize)findActualSizeOfWebView{
+	CGSize actualSize;
+	//Change changeWeiBo height to 1 px
+	CGRect tempFrame = _changWeiBo.frame;
+	tempFrame.size.height = 1;
+	_changWeiBo.frame = tempFrame;
+	
+	//Calculate the actual content size
+	actualSize = _changWeiBo.scrollView.contentSize;
+	
+	//insert the brand banner
+	CGRect bannerFrame = CGRectMake(0, actualSize.height, _supportImage.frame.size.width, _supportImage.frame.size.height);
+	_supportImage.frame = bannerFrame;
+	[_changWeiBo addSubview:_supportImage];
+	
+	//Re-Calculate the actual size to collaborate with new support image
+	actualSize.height += _supportImage.frame.size.height;
+	
+	//Restore the frame to its origin
+	_changWeiBo.frame = originalChangWeiBoFrame;
+	
+	return actualSize;
+}
+
 - (IBAction) renderWebViewToImage
 {
 	UIImage* image = nil;
+	CGSize contentSize = [self findActualSizeOfWebView];
 	
-	//load the banner image
-	UIImageView* supportImage = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"supportBanner.png"]];
-	CGSize contentSize = _changWeiBo.scrollView.contentSize;
-	CGRect bannerFrame = CGRectMake(0, contentSize.height, supportImage.frame.size.width, supportImage.frame.size.height);
-	supportImage.frame = bannerFrame;
-	[_changWeiBo.scrollView addSubview:supportImage];
+	//contentSize changes, contentSize re-value
+	contentSize = [self findActualSizeOfWebView];
 	
-	UIGraphicsBeginImageContext(_changWeiBo.scrollView.contentSize);
+	NSLog(@"cS:%@ oS:%@",NSStringFromCGSize(contentSize),NSStringFromCGSize(_changWeiBo.frame.size));
+	
+	UIGraphicsBeginImageContextWithOptions(contentSize, NO, 0.0);
 	{
 		CGPoint savedContentOffset = _changWeiBo.scrollView.contentOffset;
 		CGRect savedFrame = _changWeiBo.frame;
@@ -594,19 +598,22 @@ static int i = 0;
 	UIGraphicsEndImageContext();
 	
 	//remove the banner after its use
-	[supportImage removeFromSuperview];
-	
+	[_supportImage removeFromSuperview];
 	if (image != nil) {
 		NSString* storePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+		
+		//Save the image as png format
 		NSString* imageFilePath = [storePath stringByAppendingPathComponent:@"savedChangWeiBo.png"];
-		
-		[UIImagePNGRepresentation(image) writeToFile: imageFilePath atomically: YES];
-		
+		[UIImagePNGRepresentation(image) writeToFile:imageFilePath atomically:YES];
+
 		// Save it to the camera roll / saved photo album
 		UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
 		
 		//we open the completion view when the file is saved successfully
 		[self completionViewEnter:image];
+		
+		//Also, disable _changWeiBo
+		[_changWeiBo setUserInteractionEnabled:NO];
 		
 		//then, we inform the app that the edit has been completed, delete backup file
 		NSFileManager* defaultFileManager = [NSFileManager defaultManager];
@@ -658,7 +665,7 @@ static int i = 0;
 	_cvc.view.center = _changWeiBo.center;
 	[UIView commitAnimations];
 	
-	[NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(completionViewDismissBufferZone) userInfo:nil repeats:NO];
+	_cVDBZTimer = [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(completionViewDismissBufferZone) userInfo:nil repeats:NO];
 	
 }
 
@@ -681,6 +688,19 @@ static int i = 0;
 	[_cvc willMoveToParentViewController:nil];
 	[_cvc.view removeFromSuperview];
 	[_cvc removeFromParentViewController];
+	
+	//Also, re-enable _changWeiBo
+	[_changWeiBo setUserInteractionEnabled:YES];
+}
+
+
+-(void)completionViewWillShare{
+	[_cVDBZTimer invalidate];
+}
+
+-(void)completionViewDidShare{
+	_cVDBZTimer = [NSTimer scheduledTimerWithTimeInterval:3.0f target:self selector:@selector(completionViewDismissBufferZone) userInfo:nil repeats:NO];
+	
 }
 
 - (void)saveContents {
@@ -715,7 +735,6 @@ static int i = 0;
 
 - (IBAction)dismissWebViewKeyboard : (id)sender {
 	[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.activeElement.blur()"];
-	NSLog(@"orf %@",NSStringFromCGRect(originalChangWeiBoFrame));
 }
 
 @end

@@ -11,3 +11,27 @@
 
 /* doneBtn highlight state title */
 "doneBtn highlight title path" = "完成按钮按下.png";
+
+/* completion view successful result message with share type */
+"result message share type renren" = "人人分享成功！";
+
+/* completion view successful result message with share type */
+"result message share type weibo" = "微博分享成功！";
+
+/* completion view successful result message with share type */
+"result message share type douban" = "豆瓣分享成功！";
+
+/* completion view successful result message with share type */
+"result message share type weixin" = "微信分享成功！";
+
+/* completion view failure result message with share type */
+"failed result message share type renren" = "人人分享失败。";
+
+/* completion view failure result message with share type */
+"failed result message share type weibo" = "微博分享失败。";
+
+/* completion view failure result message with share type */
+"failed result message share type douban" = "豆瓣分享失败。";
+
+/* completion view failure result message with share type */
+"failed result message share type weixin" = "微信分享失败。";

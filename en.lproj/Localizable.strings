@@ -11,3 +11,27 @@
 
 /* doneBtn highlight state title */
 "doneBtn highlight title path" = "doneBtnH.png";
+
+/* completion view successful result message with share type */
+"result message share type renren" = "Renren Share Succeeded!";
+
+/* completion view successful result message with share type */
+"result message share type weibo" = "Weibo Share Succeeded!";
+
+/* completion view successful result message with share type */
+"result message share type douban" = "Douban Share Succeeded!";
+
+/* completion view successful result message with share type */
+"result message share type weixin" = "Weixin Share Succeeded!";
+
+/* completion view failure result message with share type */
+"failed result message share type renren" = "Share to Renren Failed For %@.";
+
+/* completion view failure result message with share type */
+"failed result message share type weibo" = "Share to Weibo Failed";
+
+/* completion view failure result message with share type */
+"failed result message share type douban" = "Share to Douban Failed";
+
+/* completion view failure result message with share type */
+"failed result message share type weixin" = "Share to Weixin Failed.";

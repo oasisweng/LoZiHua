@@ -3,6 +3,7 @@
 //  FDTakeExample
 //
 //  Created by Will Entriken on 8/9/12.
+//  Modified by Dingzhong Weng on 5/27/13.
 //  Copyright (c) 2012 William Entriken. All rights reserved.
 //
 
@@ -196,6 +197,9 @@
         else {
             // On iPhone use full screen presentation.
             [[self presentingViewController] presentViewController:self.imagePicker animated:YES completion:nil];
+			   NSLog(@"presentingVC :%@",[self presentingViewController]);
+			  if ([self.delegate respondsToSelector:@selector(takeController:didBegin:)])
+				  [self.delegate takeController:self didBegin:YES];
         }
     }
 }
@@ -212,6 +216,12 @@
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
+	// Workaround for iOS 4 compatibility http://stackoverflow.com/questions/12445190/dismissmodalviewcontrolleranimated-deprecated
+	if ([self respondsToSelector:@selector(dismissViewControllerAnimated:completion:)])
+		[picker dismissViewControllerAnimated:YES completion:nil];
+	else
+		[picker dismissModalViewControllerAnimated:YES];
+	
     NSString *mediaType = [info objectForKey: UIImagePickerControllerMediaType];
     UIImage *originalImage, *editedImage, *imageToSave;
    
@@ -241,7 +251,7 @@
         
         if ([self.delegate respondsToSelector:@selector(takeController:gotPhoto:withInfo:)])
             [self.delegate takeController:self gotPhoto:imageToSave withInfo:info];
-        
+       
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
             [self.popover dismissPopoverAnimated:YES];
     }
@@ -251,12 +261,6 @@
         if ([self.delegate respondsToSelector:@selector(takeController:gotVideo:withInfo:)])
             [self.delegate takeController:self gotVideo:[info objectForKey:UIImagePickerControllerMediaURL] withInfo:info];
     }
-
-    // Workaround for iOS 4 compatibility http://stackoverflow.com/questions/12445190/dismissmodalviewcontrolleranimated-deprecated
-    if ([self respondsToSelector:@selector(dismissViewControllerAnimated:completion:)])
-        [picker dismissViewControllerAnimated:YES completion:nil];
-    else
-        [picker dismissModalViewControllerAnimated:YES];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
