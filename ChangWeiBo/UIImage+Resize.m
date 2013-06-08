@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Dingzhong Weng. All rights reserved.
 //
 
-#import "LLUIImage+Resize.h"
+#import "UIImage+Resize.h"
 
 // Put this in UIImageResizing.m
 @implementation UIImage (Resize)

@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Dingzhong Weng. All rights reserved.
 //
 
-#import "LLRTEGestureRecognizer.h"
+#import "RTEGestureRecognizer.h"
 
-@implementation LLRTEGestureRecognizer
+@implementation RTEGestureRecognizer
 @synthesize touchesBeganCallback;
 @synthesize touchesEndedCallback;
 

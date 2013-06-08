@@ -11,7 +11,7 @@
 
 typedef void (^TouchEventBlock)(NSSet * touches, UIEvent * event);
 
-@interface LLRTEGestureRecognizer : UIGestureRecognizer {
+@interface RTEGestureRecognizer : UIGestureRecognizer {
 	TouchEventBlock touchesBeganCallback;
 	TouchEventBlock touchesEndedCallback;
 }

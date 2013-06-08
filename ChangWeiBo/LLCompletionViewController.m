@@ -16,6 +16,7 @@
 @synthesize promptMessage = _promptMessage;
 @synthesize resultMessage = _resultMessage;
 @synthesize imageToPass = _imageToPass;
+@synthesize delegate;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -30,6 +31,7 @@
 {
 	[super viewDidLoad];
 	// Do any additional setup after loading the view.
+	[_resultMessage setHidden:YES];
 }
 
 - (void)didReceiveMemoryWarning
@@ -39,6 +41,7 @@
 }
 
 -(void) completionViewDismiss{
+	[_resultMessage setHidden:YES];
 	[self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -49,10 +52,13 @@
  */
 - (IBAction)noneUIShareToSinaWeiboClickHandler:(UIButton *)sender
 {
+	
+	[self.delegate completionViewWillShare];
+	
 	//创建分享内容
 	NSString* imagePath = [self getImagePath];
 	id<ISSContent> publishContent = [ShareSDK content:nil
-												  defaultContent:@""
+												  defaultContent:@"分享图片 来自Lo字画"
 															  image:[ShareSDK imageWithPath:imagePath]
 															  title:nil
 																 url:nil
@@ -64,24 +70,11 @@
 	[container setIPadContainerWithView:sender arrowDirect:UIPopoverArrowDirectionUp];
 	
 	//创建授权选项
-	id<ISSAuthOptions> authOptions = [ShareSDK authOptionsWithAutoAuth:NO
+	id<ISSAuthOptions> authOptions = [ShareSDK authOptionsWithAutoAuth:YES
 																		  allowCallback:YES
 																		  authViewStyle:SSAuthViewStyleModal
 																			viewDelegate:nil
 															 authManagerViewDelegate:nil];
-	//创建分享选项
-	/*id<ISSShareOptions> shareOptions = [ShareSDK defaultShareOptionsWithTitle:nil
-	 oneKeyShareList:nil
-	 qqButtonHidden:YES
-	 wxSessionButtonHidden:YES
-	 wxTimelineButtonHidden:YES
-	 showKeyboardOnAppear:NO
-	 shareViewDelegate:nil
-	 friendsViewDelegate:nil
-	 picViewerViewDelegate:nil];
-	 //创建分享列表
-	 NSArray *shareList = [ShareSDK customShareListWithType:SHARE_TYPE_NUMBER(ShareTypeSinaWeibo),nil];
-	 */
 	
 	//显示分享菜单
 	[ShareSDK shareContent:publishContent
@@ -89,13 +82,16 @@
 				  authOptions:authOptions
 				statusBarTips:YES
 						 result:^(ShareType type, SSPublishContentState state, id<ISSStatusInfo> statusInfo, id<ICMErrorInfo> error, BOOL end) {
+							 [self.delegate completionViewDidShare];
 							 if (state == SSPublishContentStateSuccess)
 							 {
 								 NSLog(@"发表成功");
+								 [self printSuccessfulMessage:ShareTypeSinaWeibo];
 							 }
 							 else if (state == SSPublishContentStateFail)
 							 {
 								 NSLog(@"发布失败!error code == %d, error code == %@", [error errorCode], [error errorDescription]);
+								 [self printFailedMessage:ShareTypeSinaWeibo andError:[error errorDescription]];
 							 }
 						 }];
 	
@@ -108,6 +104,8 @@
  */
 - (IBAction)noneUIShareToWeiXinClickHandler:(UIButton *)sender
 {
+	[self.delegate completionViewWillShare];
+	
 	//创建分享内容
 	NSString* imagePath = [self getImagePath];
 	
@@ -136,7 +134,7 @@
 	[container setIPadContainerWithView:sender arrowDirect:UIPopoverArrowDirectionUp];
 	
 	//创建授权选项
-	id<ISSAuthOptions> authOptions = [ShareSDK authOptionsWithAutoAuth:NO
+	id<ISSAuthOptions> authOptions = [ShareSDK authOptionsWithAutoAuth:YES
 																		  allowCallback:YES
 																		  authViewStyle:SSAuthViewStyleModal
 																			viewDelegate:nil
@@ -161,13 +159,17 @@
 				  authOptions:authOptions
 				statusBarTips:YES
 						 result:^(ShareType type, SSPublishContentState state, id<ISSStatusInfo> statusInfo, id<ICMErrorInfo> error, BOOL end) {
+							 [self.delegate completionViewDidShare];
 							 if (state == SSPublishContentStateSuccess)
 							 {
 								 NSLog(@"发表成功");
+								 [self printSuccessfulMessage:ShareTypeWeixiTimeline];
 							 }
 							 else if (state == SSPublishContentStateFail)
 							 {
+								 
 								 NSLog(@"发布失败!error code == %d, error code == %@", [error errorCode], [error errorDescription]);
+								 [self printFailedMessage:ShareTypeWeixiTimeline andError:[error errorDescription]];
 							 }
 						 }];
 	
@@ -180,11 +182,38 @@
  */
 - (IBAction)noneUIShareToDouBanClickHandler:(UIButton *)sender
 {
+	[self.delegate completionViewWillShare];
+	
+//	id<ISSDouBanApp> app = (id<ISSDouBanApp>)[ShareSDK getClientWithType:ShareTypeDouBan];
+//	
+//	//定制豆瓣网信息
+//	SSDouBanErrorInfo* error = nil;
+//	if ([app checkUnauthWithError:error]){
+//		//如果没有授权，则授权，然后再发布
+//		id<ISSAuthOptions> authOption = [ShareSDK authOptionsWithAutoAuth:YES
+//																			 allowCallback:YES
+//																			 authViewStyle:SSAuthViewStyleModal
+//																			  viewDelegate:nil
+//																authManagerViewDelegate:nil];
+//		[ShareSDK authWithType:ShareTypeDouBan
+//							options:authOption
+//							 result:^(SSAuthState state, id<ICMErrorInfo> error) {
+//								 if (!error)
+//								 {
+//									 NSLog(@"授权成功");
+//								 }
+//								 else
+//								 {
+//									 NSLog(@"授权失败!error code == %d, error code == %@", [error errorCode], [error errorDescription]);
+//								 }
+//							 }];
+//	}
+	
 	//创建分享内容
 	NSString* imagePath = [self getImagePath];
 	
 	id<ISSContent> publishContent = [ShareSDK content:nil
-												  defaultContent:@" "
+												  defaultContent:@"分享图片 来自Lo字画"
 															  image:[ShareSDK imageWithPath:imagePath]
 															  title:nil
 																 url:nil
@@ -196,38 +225,27 @@
 	[container setIPadContainerWithView:sender arrowDirect:UIPopoverArrowDirectionUp];
 	
 	//创建授权选项
-	id<ISSAuthOptions> authOptions = [ShareSDK authOptionsWithAutoAuth:NO
+	id<ISSAuthOptions> authOptions = [ShareSDK authOptionsWithAutoAuth:YES
 																		  allowCallback:YES
 																		  authViewStyle:SSAuthViewStyleModal
 																			viewDelegate:nil
 															 authManagerViewDelegate:nil];
-	//创建分享选项
-	/*id<ISSShareOptions> shareOptions = [ShareSDK defaultShareOptionsWithTitle:nil
-	 oneKeyShareList:nil
-	 qqButtonHidden:YES
-	 wxSessionButtonHidden:YES
-	 wxTimelineButtonHidden:YES
-	 showKeyboardOnAppear:NO
-	 shareViewDelegate:nil
-	 friendsViewDelegate:nil
-	 picViewerViewDelegate:nil];
-	 //创建分享列表
-	 NSArray *shareList = [ShareSDK customShareListWithType:SHARE_TYPE_NUMBER(ShareTypeSinaWeibo),nil];
-	 */
-	
 	//显示分享菜单
 	[ShareSDK shareContent:publishContent
 							type:ShareTypeDouBan
 				  authOptions:authOptions
 				statusBarTips:YES
 						 result:^(ShareType type, SSPublishContentState state, id<ISSStatusInfo> statusInfo, id<ICMErrorInfo> error, BOOL end) {
+							 [self.delegate completionViewDidShare];
 							 if (state == SSPublishContentStateSuccess)
 							 {
 								 NSLog(@"发表成功");
+								 [self printSuccessfulMessage:ShareTypeDouBan];
 							 }
 							 else if (state == SSPublishContentStateFail)
 							 {
 								 NSLog(@"发布失败!error code == %d, error code == %@", [error errorCode], [error errorDescription]);
+								 [self printFailedMessage:ShareTypeDouBan andError:[error errorDescription]];
 							 }
 						 }];
 	
@@ -240,6 +258,8 @@
  */
 - (IBAction)noneUIShareToRenrenClickHandler:(UIButton *)sender
 {
+	[self.delegate completionViewWillShare];
+	
 	id<ISSRenRenApp> app = (id<ISSRenRenApp>)[ShareSDK getClientWithType:ShareTypeRenren];
 	
 	//创建分享内容
@@ -271,16 +291,21 @@
 	}
 	
 	if ([ShareSDK hasAuthorizedWithType:ShareTypeRenren])
-		[app uploadPhoto:attachment caption:@"分享图片 来自长微博软件:Lo字画" aid:0 result:^(BOOL result, SSRenRenPhoto *photo, SSRenRenErrorInfo *error) {
-			if (!error)
-			{
-				NSLog(@"发表成功");
-			}
-			else
-			{
-				NSLog(@"发布失败!error code == %d, error code == %@", [error errorCode], [error errorDescription]);
-			}
-		}];
+		[app uploadPhoto:attachment caption:@"分享图片 来自长微博软件:Lo字画"
+						 aid:0
+					 result:^(BOOL result, SSRenRenPhoto *photo, SSRenRenErrorInfo *error) {
+						 [self.delegate completionViewDidShare];
+						 if (!error)
+						 {
+							 NSLog(@"发表成功");
+							 [self printSuccessfulMessage:ShareTypeRenren];
+						 }
+						 else
+						 {
+							 NSLog(@"发布失败!error code == %d, error code == %@", [error errorCode], [error errorDescription]);
+							 [self printFailedMessage:ShareTypeRenren andError:[error errorDescription]];
+						 }
+					 }];
 	
 }
 
@@ -297,16 +322,16 @@
 	NSString* successfulMSG;
 	switch (shareType) {
 		case ShareTypeRenren:
-			successfulMSG =NSLocalizedString("result message share type renren", "completion view successful result message with share type");
+			successfulMSG =NSLocalizedString(@"result message share type renren", "completion view successful result message with share type");
 			break;
 		case ShareTypeSinaWeibo:
-			successfulMSG =NSLocalizedString("result message share type weibo", "completion view successful result message with share type");
+			successfulMSG =NSLocalizedString(@"result message share type weibo", "completion view successful result message with share type");
 			break;
 		case ShareTypeWeixiTimeline:
-			successfulMSG =NSLocalizedString("result message share type weixin", "completion view successful result message with share type");
+			successfulMSG =NSLocalizedString(@"result message share type weixin", "completion view successful result message with share type");
 			break;
 		case ShareTypeDouBan:
-			successfulMSG =NSLocalizedString("result message share type douban", "completion view successful result message with share type");
+			successfulMSG =NSLocalizedString(@"result message share type douban", "completion view successful result message with share type");
 			break;
 		default:
 			break;
@@ -315,20 +340,20 @@
 	[_resultMessage setText:successfulMSG];
 };
 
--(void)printFailedMessage:(ShareType)shareType andError:(SSRenRenErrorInfo *)error{
+-(void)printFailedMessage:(ShareType)shareType andError:(NSString*)error{
 	NSString* failedMSG;
 	switch (shareType) {
 		case ShareTypeRenren:
-			failedMSG = [NSString stringWithFormat:NSLocalizedString("result message share type renren", "completion view failure result message with share type"),[error description]];
+			failedMSG = [NSString stringWithFormat:NSLocalizedString(@"failed result message share type renren", "completion view failure result message with share type"),error];
 			break;
 		case ShareTypeSinaWeibo:
-			failedMSG = [NSString stringWithFormat:NSLocalizedString("result message share type weibo", "completion view failure result message with share type"),[error description]];
+			failedMSG = [NSString stringWithFormat:NSLocalizedString(@"failed result message share type weibo", "completion view failure result message with share type"),error];
 			break;
 		case ShareTypeWeixiTimeline:
-			failedMSG = [NSString stringWithFormat:NSLocalizedString("result message share type weixin", "completion view failure result message with share type"),[error description]];
+			failedMSG = [NSString stringWithFormat:NSLocalizedString(@"failed result message share type weixin", "completion view failure result message with share type"),error];
 			break;
 		case ShareTypeDouBan:
-			failedMSG = [NSString stringWithFormat:NSLocalizedString("result message share type douban", "completion view failure result message with share type"),[error description]];
+			failedMSG = [NSString stringWithFormat:NSLocalizedString(@"failed result message share type douban", "completion view failure result message with share type"),error];
 			break;
 		default:
 			break;
