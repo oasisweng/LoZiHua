@@ -27,11 +27,15 @@
 	return self;
 }
 
+- (void)viewWillAppear:(BOOL)animated{
+	[_resultMessage setHidden:YES];
+	[_resultMessage setText:@""];
+}
+
 - (void)viewDidLoad
 {
 	[super viewDidLoad];
 	// Do any additional setup after loading the view.
-	[_resultMessage setHidden:YES];
 }
 
 - (void)didReceiveMemoryWarning
@@ -80,9 +84,13 @@
 	[ShareSDK shareContent:publishContent
 							type:ShareTypeSinaWeibo
 				  authOptions:authOptions
-				statusBarTips:YES
+				statusBarTips:NO
 						 result:^(ShareType type, SSPublishContentState state, id<ISSStatusInfo> statusInfo, id<ICMErrorInfo> error, BOOL end) {
-							 [self.delegate completionViewDidShare];
+							 if (state != SSPublishContentStateBegan){
+								 [self.delegate completionViewDidShare];
+							 } else {
+								 [self printUploadingMessage];
+							 }
 							 if (state == SSPublishContentStateSuccess)
 							 {
 								 NSLog(@"发表成功");
@@ -157,9 +165,13 @@
 	[ShareSDK shareContent:publishContent
 							type:ShareTypeWeixiTimeline
 				  authOptions:authOptions
-				statusBarTips:YES
+				statusBarTips:NO
 						 result:^(ShareType type, SSPublishContentState state, id<ISSStatusInfo> statusInfo, id<ICMErrorInfo> error, BOOL end) {
-							 [self.delegate completionViewDidShare];
+							 if (state != SSPublishContentStateBegan){
+								 [self.delegate completionViewDidShare];
+							 } else {
+								 [self printUploadingMessage];
+							 }
 							 if (state == SSPublishContentStateSuccess)
 							 {
 								 NSLog(@"发表成功");
@@ -183,31 +195,6 @@
 - (IBAction)noneUIShareToDouBanClickHandler:(UIButton *)sender
 {
 	[self.delegate completionViewWillShare];
-	
-//	id<ISSDouBanApp> app = (id<ISSDouBanApp>)[ShareSDK getClientWithType:ShareTypeDouBan];
-//	
-//	//定制豆瓣网信息
-//	SSDouBanErrorInfo* error = nil;
-//	if ([app checkUnauthWithError:error]){
-//		//如果没有授权，则授权，然后再发布
-//		id<ISSAuthOptions> authOption = [ShareSDK authOptionsWithAutoAuth:YES
-//																			 allowCallback:YES
-//																			 authViewStyle:SSAuthViewStyleModal
-//																			  viewDelegate:nil
-//																authManagerViewDelegate:nil];
-//		[ShareSDK authWithType:ShareTypeDouBan
-//							options:authOption
-//							 result:^(SSAuthState state, id<ICMErrorInfo> error) {
-//								 if (!error)
-//								 {
-//									 NSLog(@"授权成功");
-//								 }
-//								 else
-//								 {
-//									 NSLog(@"授权失败!error code == %d, error code == %@", [error errorCode], [error errorDescription]);
-//								 }
-//							 }];
-//	}
 	
 	//创建分享内容
 	NSString* imagePath = [self getImagePath];
@@ -234,9 +221,13 @@
 	[ShareSDK shareContent:publishContent
 							type:ShareTypeDouBan
 				  authOptions:authOptions
-				statusBarTips:YES
+				statusBarTips:NO
 						 result:^(ShareType type, SSPublishContentState state, id<ISSStatusInfo> statusInfo, id<ICMErrorInfo> error, BOOL end) {
-							 [self.delegate completionViewDidShare];
+							 if (state != SSPublishContentStateBegan){
+								 [self.delegate completionViewDidShare];
+							 } else {
+								 [self printUploadingMessage];
+							 }
 							 if (state == SSPublishContentStateSuccess)
 							 {
 								 NSLog(@"发表成功");
@@ -279,18 +270,21 @@
 		[ShareSDK authWithType:ShareTypeRenren
 							options:authOption
 							 result:^(SSAuthState state, id<ICMErrorInfo> error) {
-								 if (!error)
+								 if (!error && state == SSAuthStateSuccess)
 								 {
 									 NSLog(@"授权成功");
 								 }
-								 else
+								 else if (state == SSAuthStateFail || state == SSAuthStateCancel)
 								 {
+									 [self.delegate completionViewDidShare];
 									 NSLog(@"授权失败!error code == %d, error code == %@", [error errorCode], [error errorDescription]);
+									 [self printFailedMessage:ShareTypeRenren andError:[error errorDescription]];
 								 }
 							 }];
 	}
 	
-	if ([ShareSDK hasAuthorizedWithType:ShareTypeRenren])
+	if ([ShareSDK hasAuthorizedWithType:ShareTypeRenren]){
+		[self printUploadingMessage];
 		[app uploadPhoto:attachment caption:@"分享图片 来自长微博软件:Lo字画"
 						 aid:0
 					 result:^(BOOL result, SSRenRenPhoto *photo, SSRenRenErrorInfo *error) {
@@ -306,6 +300,7 @@
 							 [self printFailedMessage:ShareTypeRenren andError:[error errorDescription]];
 						 }
 					 }];
+	}
 	
 }
 
@@ -339,6 +334,12 @@
 	[_resultMessage setHidden:NO];
 	[_resultMessage setText:successfulMSG];
 };
+
+-(void)printUploadingMessage{
+	NSString* uploadingMSG = NSLocalizedString(@"uploading message", @"completion view uploading prompt");
+	[_resultMessage setHidden:NO];
+	[_resultMessage setText:uploadingMSG];
+}
 
 -(void)printFailedMessage:(ShareType)shareType andError:(NSString*)error{
 	NSString* failedMSG;

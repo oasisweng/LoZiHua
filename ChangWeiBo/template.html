@@ -50,6 +50,39 @@
 			// Re-insert the image
 			document.execCommand('insertImage', false, imageSrc);
 		}
+		
+		function insertLineBreak(){
+			var doc=document.getElementById("content").open("text/html",false);
+			var txt="<html><body>Learning about the HTML DOM is fun!</body></html>";
+			doc.write(txt);
+			doc.close();
+		}
+		
+		function getCaretPosition() {
+			var sel = document.selection, range;
+			var x = 0, y = 0;
+			if (sel) {
+				if (sel.type != "Control") {
+					range = sel.createRange();
+					range.collapse(true);
+					x = range.boundingLeft;
+					y = range.boundingTop;
+				}
+			} else if (window.getSelection) {
+				sel = window.getSelection();
+				if (sel.rangeCount) {
+					range = sel.getRangeAt(0).cloneRange();
+					if (range.getClientRects) {
+						range.collapse(true);
+						var rect = range.getClientRects()[0];
+						x = rect.left;
+						y = rect.top;
+					}
+				}
+			}
+			return { x: x, y: y };
+		}
+		
 		</script>
 
 	<body>

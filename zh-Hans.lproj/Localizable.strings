@@ -35,3 +35,6 @@
 
 /* completion view failure result message with share type */
 "failed result message share type weixin" = "微信分享失败。";
+
+/* completion view uploading prompt */
+"uploading message" = "正在上传...";

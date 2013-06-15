@@ -28,6 +28,7 @@
 
 -(NSString*)getImagePath;
 -(void)printSuccessfulMessage:(ShareType)shareType;
+-(void)printUploadingMessage;
 -(void)printFailedMessage:(ShareType)shareType andError:(NSString*)error;
 
 @end

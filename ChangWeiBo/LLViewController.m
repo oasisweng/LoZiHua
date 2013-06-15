@@ -109,6 +109,7 @@
 	_cvc = [[LLCompletionViewController alloc]initWithNibName:@"completionView" bundle:[NSBundle mainBundle]];
 	_cvc.modalPresentationStyle = UIModalPresentationFormSheet;
 	_cvc.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+	_cvc.delegate = self;
 	
 	
 	//Step 1: Load template.html, if there is a back-up, load the back-up
@@ -217,7 +218,7 @@
 	[_doneBtn setImage:[UIImage imageNamed:doneBtnHighlightLocalizedImage] forState:UIControlStateHighlighted];
 	
 	//init support image
-	_supportImage = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"supportBanner.png"]];
+	_supportImage = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"supportBannerBig.JPG"]];
 	
 }
 
@@ -296,6 +297,7 @@
 	//remove option view
 	[_optionsView removeFromSuperview];
 	
+	[_changWeiBo stringByEvaluatingJavaScriptFromString:@"insertLineBreak()"];
 	
 	//restore _changWeiBo
 	[UIView beginAnimations:nil context:NULL];
@@ -558,7 +560,7 @@ static int i = 0;
 	actualSize = _changWeiBo.scrollView.contentSize;
 	
 	//insert the brand banner
-	CGRect bannerFrame = CGRectMake(0, actualSize.height, _supportImage.frame.size.width, _supportImage.frame.size.height);
+	CGRect bannerFrame = CGRectMake(0, actualSize.height, 306.0f, 95.65f);
 	_supportImage.frame = bannerFrame;
 	[_changWeiBo addSubview:_supportImage];
 	
@@ -696,10 +698,12 @@ static int i = 0;
 
 -(void)completionViewWillShare{
 	[_cVDBZTimer invalidate];
+	NSLog(@"completionViewWillShare: timer invalidated.");
 }
 
 -(void)completionViewDidShare{
-	_cVDBZTimer = [NSTimer scheduledTimerWithTimeInterval:3.0f target:self selector:@selector(completionViewDismissBufferZone) userInfo:nil repeats:NO];
+	_cVDBZTimer = [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(completionViewDismissBufferZone) userInfo:nil repeats:NO];
+	NSLog(@"completionViewDidShare: timer reinstalled.");
 	
 }
 

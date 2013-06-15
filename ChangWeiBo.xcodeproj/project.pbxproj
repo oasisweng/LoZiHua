@@ -30,6 +30,7 @@
 		353812421744CB7F007C7869 /* wechat.png in Resources */ = {isa = PBXBuildFile; fileRef = 353812411744CB7F007C7869 /* wechat.png */; };
 		353812441744CBB5007C7869 /* favicon_48x48.png in Resources */ = {isa = PBXBuildFile; fileRef = 353812431744CBB5007C7869 /* favicon_48x48.png */; };
 		353812461744CC09007C7869 /* Renren_logo_100x100.png in Resources */ = {isa = PBXBuildFile; fileRef = 353812451744CC09007C7869 /* Renren_logo_100x100.png */; };
+		35499B90176C090600A537D1 /* supportBannerBig.JPG in Resources */ = {isa = PBXBuildFile; fileRef = 35499B8F176C090600A537D1 /* supportBannerBig.JPG */; };
 		356464231749F3780064C100 /* changWeiBoIcon57*57.png in Resources */ = {isa = PBXBuildFile; fileRef = 356464221749F3780064C100 /* changWeiBoIcon57*57.png */; };
 		356464251749F37B0064C100 /* changWeiBoIcon114*114.png in Resources */ = {isa = PBXBuildFile; fileRef = 356464241749F37B0064C100 /* changWeiBoIcon114*114.png */; };
 		356464321749F9AB0064C100 /* supportBanner.png in Resources */ = {isa = PBXBuildFile; fileRef = 356464311749F9AB0064C100 /* supportBanner.png */; };
@@ -157,6 +158,7 @@
 		353812411744CB7F007C7869 /* wechat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wechat.png; sourceTree = "<group>"; };
 		353812431744CBB5007C7869 /* favicon_48x48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = favicon_48x48.png; sourceTree = "<group>"; };
 		353812451744CC09007C7869 /* Renren_logo_100x100.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Renren_logo_100x100.png; sourceTree = "<group>"; };
+		35499B8F176C090600A537D1 /* supportBannerBig.JPG */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = supportBannerBig.JPG; sourceTree = "<group>"; };
 		356464221749F3780064C100 /* changWeiBoIcon57*57.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "changWeiBoIcon57*57.png"; sourceTree = "<group>"; };
 		356464241749F37B0064C100 /* changWeiBoIcon114*114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "changWeiBoIcon114*114.png"; sourceTree = "<group>"; };
 		356464291749F5C00064C100 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "zh-Hans"; path = "zh-Hans.lproj/MainStoryboard_iPhone.storyboard"; sourceTree = "<group>"; };
@@ -571,6 +573,8 @@
 		356969CD1728C3AF0064DFB1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				356464311749F9AB0064C100 /* supportBanner.png */,
+				35499B8F176C090600A537D1 /* supportBannerBig.JPG */,
 				356464281749F3C30064C100 /* launchImages */,
 				356464271749F3B60064C100 /* backgrounds */,
 				356464261749F3A20064C100 /* icons */,
@@ -586,7 +590,6 @@
 				356969CF1728C3AF0064DFB1 /* InfoPlist.strings */,
 				356969D21728C3AF0064DFB1 /* main.m */,
 				356969D41728C3B00064DFB1 /* ChangWeiBo-Prefix.pch */,
-				356464311749F9AB0064C100 /* supportBanner.png */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -757,6 +760,7 @@
 				35646488174A12130064C100 /* ShareSDKiPadSimpleShareViewUI.bundle in Resources */,
 				3564648B174A12130064C100 /* ShareSDKiPhoneDefaultShareViewUI.bundle in Resources */,
 				3564648D174A12130064C100 /* ShareSDKiPhoneSimpleShareViewUI.bundle in Resources */,
+				35499B90176C090600A537D1 /* supportBannerBig.JPG in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
