@@ -39,6 +39,7 @@
 	
 	//Variables for view management
 	CGRect originalChangWeiBoFrame;
+	
 }
 
 @synthesize changWeiBo = _changWeiBo;
@@ -104,6 +105,9 @@
 	//Load nib file of _changweibo and optionsView
 	[[NSBundle mainBundle]loadNibNamed:@"LLInputMethodAttachView" owner:self options:nil];
 	[[NSBundle mainBundle]loadNibNamed:@"LLOptionsView" owner:self options:nil];
+	
+	//initialize _changWeiBo;
+	//_changWeiBo = [[LLChangWeiBo alloc]init];
 	
 	//Load _completionviewcontroller(_cvc）
 	_cvc = [[LLCompletionViewController alloc]initWithNibName:@"completionView" bundle:[NSBundle mainBundle]];
@@ -195,7 +199,7 @@
 	
 	//store the original frame of _changWeiBo
 	originalChangWeiBoFrame = _changWeiBo.frame;
-	
+
 	//edit the background of self.view
 	self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"viewFill.png"]];
 	
@@ -205,15 +209,11 @@
 	//edit the background of _optionView
 	_optionsView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"optionViewFill.png"]];
 	
-	//edit _ChangWeiBo
-	_changWeiBo.layer.shadowColor = [[UIColor darkGrayColor]CGColor];
-	_changWeiBo.layer.shadowOpacity = 0.9f;
-	_changWeiBo.layer.shadowOffset = CGSizeMake(1, 1);
-	_changWeiBo.scrollView.bounces = NO;
+
 	
 	//edit the tile of _doneBtn
 	NSString* doneBtnNormalLocalizedImage = NSLocalizedString(@"doneBtn normal title path", @"doneBtn normal state title");
-		NSString* doneBtnHighlightLocalizedImage = NSLocalizedString(@"doneBtn highlight title path", @"doneBtn highlight state title");
+	NSString* doneBtnHighlightLocalizedImage = NSLocalizedString(@"doneBtn highlight title path", @"doneBtn highlight state title");
 	[_doneBtn setImage:[UIImage imageNamed:doneBtnNormalLocalizedImage] forState:UIControlStateNormal];
 	[_doneBtn setImage:[UIImage imageNamed:doneBtnHighlightLocalizedImage] forState:UIControlStateHighlighted];
 	
@@ -277,7 +277,7 @@
 	CGFloat keyboardTop = keyboardRect.origin.y;
 	CGRect newWebViewFrame = originalChangWeiBoFrame;
 	newWebViewFrame.origin.y = _optionsView.frame.size.height;
-	newWebViewFrame.size.height = self.view.frame.size.height - keyboardTop - 20;
+	newWebViewFrame.size.height = keyboardTop - newWebViewFrame.origin.y;
 	
 	// resize _changWeiBo
 	NSValue *animationDurationValue = [userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey];
@@ -476,6 +476,10 @@
 	//change button view to indicate selection
 	[_imagePicker setBackgroundImage:[UIImage imageNamed:@"cameraIconH.png"] forState:UIControlStateNormal];
 	
+	//before the image picker overtake current view, store the caret position, or it resets
+	NSString* js = @"getInputSelection(document.getElementById('content'))";
+	[_changWeiBo stringByEvaluatingJavaScriptFromString:js];
+	
 	imagePickerController = [[FDTakeController alloc]init];
 	imagePickerController.delegate = self;
 	imagePickerController.allowsEditingPhoto = YES;
@@ -520,7 +524,12 @@ static int i = 0;
 	
 	//allow me to programmatically bring up keyboard
 	_changWeiBo.keyboardDisplayRequiresUserAction = NO;
-	[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.getElementById('content').focus()"];
+	//move caret to previous position before inserting any image
+	NSString* js = [NSString stringWithFormat:@"setInputSelection(document.getElementById('content'),%i,%i)",_changWeiBo.caretPosStart.integerValue,_changWeiBo.caretPosEnd.integerValue];
+	
+	//NSString* js= @"placeCaretAtEnd(document.getElementById('content'))";
+	
+	[_changWeiBo stringByEvaluatingJavaScriptFromString:js];
 	
 	[_changWeiBo stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.execCommand('insertImage', false, '%@')", imagePath]];
 	
@@ -539,7 +548,10 @@ static int i = 0;
 	NSLog(@"didCancelAfterAttempting, %@",madeAttempt?@"YES":@"NO");
 	//allow me to programmatically bring up keyboard
 	_changWeiBo.keyboardDisplayRequiresUserAction = NO;
-	[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.getElementById('content').focus()"];
+	//NSString* js =@"document.getElementById('content').focus()";
+	NSString* js = [NSString stringWithFormat:@"setInputSelection(document.getElementById('content'),%i,%i)",_changWeiBo.caretPosStart.integerValue,_changWeiBo.caretPosEnd.integerValue];
+	[_changWeiBo stringByEvaluatingJavaScriptFromString:js];
+	
 	//disallow me to programmatically bring up keyboard
 	_changWeiBo.keyboardDisplayRequiresUserAction = YES;
 	
@@ -607,7 +619,7 @@ static int i = 0;
 		//Save the image as png format
 		NSString* imageFilePath = [storePath stringByAppendingPathComponent:@"savedChangWeiBo.png"];
 		[UIImagePNGRepresentation(image) writeToFile:imageFilePath atomically:YES];
-
+		
 		// Save it to the camera roll / saved photo album
 		UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
 		
@@ -737,7 +749,9 @@ static int i = 0;
 	NSLog(@"checkPoints,sCEnd");
 }
 
-- (IBAction)dismissWebViewKeyboard : (id)sender {
+- (IBAction)dismissWebViewKeyboard : (id)sender {	
+	NSString* js = @"getInputSelection(document.getElementById('content'))";
+	[_changWeiBo stringByEvaluatingJavaScriptFromString:js];
 	[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.activeElement.blur()"];
 }
 

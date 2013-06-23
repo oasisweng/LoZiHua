@@ -12,6 +12,7 @@
 #import "UIImage+Resize.h"
 #import "RTEGestureRecognizer.h"
 #import "FDTakeController.h"
+#import "LLChangWeiBo.h"
 
 #define LLCoreTextAlignmentLeft 1
 #define LLCoreTextAlignmentMid 2
@@ -22,7 +23,7 @@
 	NSTimer *timer;
 }
 
-@property (strong, nonatomic) IBOutlet UIWebView *changWeiBo;
+@property (strong, nonatomic) IBOutlet LLChangWeiBo *changWeiBo;
 @property (strong, nonatomic) LLCompletionViewController* cvc;
 @property (strong, nonatomic) NSTimer* timer;
 

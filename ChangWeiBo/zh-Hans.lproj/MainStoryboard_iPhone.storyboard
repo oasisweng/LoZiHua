@@ -26,7 +26,7 @@
                                     <action selector="renderWebViewToImage" destination="2" eventType="touchUpInside" id="pAm-re-wAF"/>
                                 </connections>
                             </button>
-                            <webView contentMode="scaleToFill" id="MIk-OI-sSa">
+                            <webView contentMode="scaleToFill" id="MIk-OI-sSa" customClass="LLChangWeiBo">
                                 <rect key="frame" x="6" y="11" width="306" height="480"/>
                                 <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -47,6 +47,47 @@
     <resources>
         <image name="生成长微博.png" width="320" height="43"/>
     </resources>
+    <classes>
+        <class className="LLChangWeiBo" superclassName="UIWebView">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/LLChangWeiBo.h"/>
+        </class>
+        <class className="LLViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/LLViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="dismissWebViewKeyboard:"/>
+                <relationship kind="action" name="fontDown:"/>
+                <relationship kind="action" name="fontUp:"/>
+                <relationship kind="action" name="insertImage:"/>
+                <relationship kind="action" name="redo:"/>
+                <relationship kind="action" name="renderWebViewToImage"/>
+                <relationship kind="action" name="setBold:"/>
+                <relationship kind="action" name="setColor:"/>
+                <relationship kind="action" name="setFont:"/>
+                <relationship kind="action" name="setHighlight:"/>
+                <relationship kind="action" name="setItalic:"/>
+                <relationship kind="action" name="setStrike:"/>
+                <relationship kind="action" name="setUnderline:"/>
+                <relationship kind="action" name="undo:"/>
+                <relationship kind="outlet" name="boldBtn" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="changWeiBo" candidateClass="LLChangWeiBo"/>
+                <relationship kind="outlet" name="colorPicker" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="completeBtn" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="doneBtn" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="fontDownBtn" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="fontPicker" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="fontUpBtn" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="highlightBtn" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="imagePicker" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="inputAccessoryView" candidateClass="UIView"/>
+                <relationship kind="outlet" name="italicBtn" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="optionsView" candidateClass="UIView"/>
+                <relationship kind="outlet" name="redoBtn" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="strikeBtn" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="underlineBtn" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="undoBtn" candidateClass="UIButton"/>
+            </relationships>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

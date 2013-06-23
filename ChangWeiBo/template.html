@@ -1,93 +1,90 @@
 <!DOCTYPE html>
 <html>
-	<script type="text/javascript">
-		document.addEventListener('touchend', function(e) { // Listen for touch end on the document
-										  // Get the touch and coordinates
-										  var touch = e.changedTouches.item(0);
-										  var touchX = touch.clientX;
-										  var touchY = touch.clientY;
-										  
-										  // Get the rect for the content
-										  var contentDIVRect = document.getElementById('content').getClientRects()[0];
-										  
-										  // Make sure we don't block touches to the content div
-										  if (touchX > contentDIVRect.left && touchY < contentDIVRect.bottom) {
-										  return;
-										  }
-										  
-										  // If the touch is out of the content div then simply give the div focus
-										  document.getElementById('content').focus();
-										  }, false);
-		
-		function moveImageAtTo(x, y, newX, newY) {
-			// Get our required variables
-			var element  = document.elementFromPoint(x, y);
-			if (element.toString().indexOf('Image') == -1) {
-				// Attempt to move an image which doesn't exist at the point
-				return;
-			}
-			var caretRange = document.caretRangeFromPoint(newX, newY);
-			var selection = window.getSelection();
-			
-			// Save the image source so we know this later when we need to re-insert it
-			var imageSrc = element.src;
-			
-			// Set the selection to the range of the image, so we can delete it
-			var nodeRange = document.createRange();
-			nodeRange.selectNode(element);
-			selection.removeAllRanges();
-			selection.addRange(nodeRange);
-			
-			// Delete the image
-			document.execCommand('delete');
-			
-			// Set the selection to the caret range, so we can then add the image
-			var selection = window.getSelection();
-			var range = document.createRange();
-			selection.removeAllRanges();
-			selection.addRange(caretRange);
-			
-			// Re-insert the image
-			document.execCommand('insertImage', false, imageSrc);
-		}
-		
-		function insertLineBreak(){
-			var doc=document.getElementById("content").open("text/html",false);
-			var txt="<html><body>Learning about the HTML DOM is fun!</body></html>";
-			doc.write(txt);
-			doc.close();
-		}
-		
-		function getCaretPosition() {
-			var sel = document.selection, range;
-			var x = 0, y = 0;
-			if (sel) {
-				if (sel.type != "Control") {
-					range = sel.createRange();
-					range.collapse(true);
-					x = range.boundingLeft;
-					y = range.boundingTop;
-				}
-			} else if (window.getSelection) {
-				sel = window.getSelection();
-				if (sel.rangeCount) {
-					range = sel.getRangeAt(0).cloneRange();
-					if (range.getClientRects) {
-						range.collapse(true);
-						var rect = range.getClientRects()[0];
-						x = rect.left;
-						y = rect.top;
-					}
-				}
-			}
-			return { x: x, y: y };
-		}
-		
-		</script>
+	<head>
+		<script type="text/javascript" src="NativeBridge.js"></script>
+		<script type="text/javascript" src="webview-script.js"></script>
+		<script type="text/javascript" src="jquery-1.10.1.min.js"></script>
+		<script type="text/javascript" src="jquery.caret.1.02.min.js"></script>
+		<script type="text/javascript">
+			document.addEventListener('touchend', function(e) { // Listen for touch end on the document
+											  // Get the touch and coordinates
+											  var touch = e.changedTouches.item(0);
+											  var touchX = touch.clientX;
+											  var touchY = touch.clientY;
+											  
+											  // Get the rect for the content
+											  var contentDIVRect = document.getElementById('content').getClientRects()[0];
+											  
+											  // Make sure we don't block touches to the content div
+											  if (touchX > contentDIVRect.left && touchY < contentDIVRect.bottom) {
+											  return;
+											  }
+											  
+											  // If the touch is out of the content div then simply give the div focus
+											  document.getElementById('content').focus();
+											
+											  }, false);
 
+			function moveImageAtTo(x, y, newX, newY) {
+				// Get our required variables
+				var element  = document.elementFromPoint(x, y);
+				if (element.toString().indexOf('Image') == -1) {
+					// Attempt to move an image which doesn't exist at the point
+					return;
+				}
+				var caretRange = document.caretRangeFromPoint(newX, newY);
+				var selection = window.getSelection();
+				
+				// Save the image source so we know this later when we need to re-insert it
+				var imageSrc = element.src;
+				
+				// Set the selection to the range of the image, so we can delete it
+				var nodeRange = document.createRange();
+				nodeRange.selectNode(element);
+				selection.removeAllRanges();
+				selection.addRange(nodeRange);
+				
+				// Delete the image
+				document.execCommand('delete');
+				
+				// Set the selection to the caret range, so we can then add the image
+				var selection = window.getSelection();
+				var range = document.createRange();
+				selection.removeAllRanges();
+				selection.addRange(caretRange);
+				
+				// Re-insert the image
+				document.execCommand('insertImage', false, imageSrc);
+			}
+			
+			function insertLineBreak(){
+				var doc=document.getElementById("content");
+				var tr=document.createTextRange();
+				tr.text += "<br/>-------------------------------<br/>";
+			}
+		
+			function placeCaretAtEnd(el) {
+				el.focus();
+				if (typeof window.getSelection != "undefined"
+					 && typeof document.createRange != "undefined") {
+					var range = document.createRange();
+					range.selectNodeContents(el);
+					range.collapse(false);
+					var sel = window.getSelection();
+					sel.removeAllRanges();
+					sel.addRange(range);
+				} else if (typeof document.body.createTextRange != "undefined") {
+					var textRange = document.body.createTextRange();
+					textRange.moveToElementText(el);
+					textRange.collapse(false);
+					textRange.select();
+				}
+			}
+			</script>
+	</head>
 	<body>
-			<div id="content" contenteditable="true" style="font-family: Helvetica">
-			 
-				</div>
+		<div id="content" contenteditable="true" style="font-family: Helvetica">
+			
+		</div>
 	</body>
 </html>
