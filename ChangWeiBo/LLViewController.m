@@ -30,9 +30,9 @@
 	BOOL currentRedoStatus;
 	
 	//Variable declaration for Step 10
-	//UIPopoverController *imagePickerPopover;
-	FDTakeController* imagePickerController;
-	
+	UIImagePickerController *imagePicker;
+	NSMutableArray* sources;
+	NSMutableArray *buttonTitles;
 	
 	//Variable declaration for Step 11
 	CGPoint initialPointOfImage;
@@ -49,7 +49,7 @@
 @synthesize timer = _timer;
 @synthesize colorPicker = _colorPicker;
 @synthesize fontPicker = _fontPicker;
-@synthesize imagePicker = _imagePicker;
+@synthesize imagePickerBtn = _imagePickerBtn;
 @synthesize boldBtn = _boldBtn;
 @synthesize italicBtn = _italicBtn;
 @synthesize underlineBtn = _underlineBtn;
@@ -63,8 +63,25 @@
 @synthesize backUpSaveInterval = _backUpSaveInterval;
 @synthesize supportImage = _supportImage;
 @synthesize cVDBZTimer = _cVDBZTimer;
+@synthesize popOverPresentRect = _popOverPresentRect;
 
 #pragma mark - Additions
+
+- (CGRect)popOverPresentRect
+{
+	if (_popOverPresentRect.size.height == 0 || _popOverPresentRect.size.width == 0)
+		// See https://github.com/hborders/MGSplitViewController/commit/9247c81d6b8c9ad183f67ad01384a76302ed7f0b
+		// on iOS 5.1, passing a CGRectZero here produces this following ominous message:
+		// -[UIPopoverController presentPopoverFromRect:inView:permittedArrowDirections:animated:]: the rect passed in to this method must have non-zero width and height. This will be an exception in a future release.
+		// this workaround was tested thusly:
+		// On iOS 4.3, CGRectZero leaves a popover afterimage before rotation, so does the code below
+		// On iOS 5.0, CGRectZero leaves a popover afterimage before rotation, the code below does not
+		// On iOS 5.1, CGRectZero leaves a popover afterimage before rotation, so does the code below
+		// Basically, this hack performs slightly better than the CGRectZero hack, and does not cause an ominous warning.
+		_popOverPresentRect = CGRectMake(0, 0, 1, 1);
+	return _popOverPresentRect;
+}
+
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
 	
@@ -150,43 +167,42 @@
 	timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(checkSelection:) userInfo:nil repeats:YES];
 	
 	//Step 11: Moving images
-	RTEGestureRecognizer *tapInterceptor = [[RTEGestureRecognizer alloc] init];
+	RTEGestureRecognizer *tapInterceptor = [[RTEGestureRecognizer alloc] init];	
 	tapInterceptor.touchesBeganCallback = ^(NSSet *touches, UIEvent *event) {
 		// Here we just get the location of the touch
 		UITouch *touch = [[event allTouches] anyObject];
 		CGPoint touchPoint = [touch locationInView:_changWeiBo];
 		
-		// Check if it is an image
+		// What we do here is to get the element that is located at the touch point to see whether or not it is an image
 		NSString *javascript = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).toString()", touchPoint.x, touchPoint.y];
 		NSString *elementAtPoint = [_changWeiBo stringByEvaluatingJavaScriptFromString:javascript];
+		
+		
 		if ([elementAtPoint rangeOfString:@"Image"].location != NSNotFound) {
 			// We set the inital point of the image for use latter on when we actually move it
 			initialPointOfImage = touchPoint;
-			// In order to make moving the image easily we must disable scrolling otherwise the view will just scroll and prevent fully detecting movement on the image.
-			//***This line is commented out also because of the suspension of moveImageTo function
-			//_changWeiBo.scrollView.scrollEnabled = NO;
+			// In order to make moving the image easy we must disable scrolling otherwise the view will just scroll and prevent fully detecting movement on the image.
+			_changWeiBo.scrollView.scrollEnabled = NO;
 		} else {
 			initialPointOfImage = CGPointZero;
 		}
 	};
-	
 	tapInterceptor.touchesEndedCallback = ^(NSSet *touches, UIEvent *event) {
 		// Let's get the finished touch point
 		UITouch *touch = [[event allTouches] anyObject];
-		CGPoint touchPoint = [touch locationInView:_changWeiBo];
+		CGPoint touchPoint = [touch locationInView:self.view];
 		
-		// move the image to position
+		// And move that image!
 		if (touchPoint.x>=0
 			 &touchPoint.x<=_changWeiBo.frame.size.width
 			 &touchPoint.y<=_changWeiBo.frame.size.height
 			 &touchPoint.y>=0){
-			//NSString *javascript = [NSString stringWithFormat:@"moveImageAtTo(%f, %f, %f, %f)", initialPointOfImage.x, initialPointOfImage.y, touchPoint.x, touchPoint.y];
-			//[_changWeiBo stringByEvaluatingJavaScriptFromString:javascript];
+		NSString *javascript = [NSString stringWithFormat:@"moveImageAtTo(%f, %f, %f, %f)", initialPointOfImage.x, initialPointOfImage.y, touchPoint.x, touchPoint.y];
+		[_changWeiBo stringByEvaluatingJavaScriptFromString:javascript];
 		}
 		
-		// re-enable the scrolling
-		//_changWeiBo.scrollView.scrollEnabled = YES;
-		
+		// All done, lets re-enable scrolling
+		_changWeiBo.scrollView.scrollEnabled = YES;
 	};
 	
 	[_changWeiBo.scrollView addGestureRecognizer:tapInterceptor];
@@ -199,7 +215,7 @@
 	
 	//store the original frame of _changWeiBo
 	originalChangWeiBoFrame = _changWeiBo.frame;
-
+	
 	//edit the background of self.view
 	self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"viewFill.png"]];
 	
@@ -209,7 +225,7 @@
 	//edit the background of _optionView
 	_optionsView.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"optionViewFill.png"]];
 	
-
+	
 	
 	//edit the tile of _doneBtn
 	NSString* doneBtnNormalLocalizedImage = NSLocalizedString(@"doneBtn normal title path", @"doneBtn normal state title");
@@ -406,6 +422,11 @@
 }
 
 // These methods are for Step 6
+- (void)correctHighlight{
+	[self setHighlight:nil];
+	[self setHighlight:nil];
+}
+
 - (IBAction)fontUp:(id)sender {
 	[timer invalidate]; // Stop it while we work
 	
@@ -413,6 +434,9 @@
 	[_changWeiBo stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.execCommand('fontSize', false, '%i')", size]];
 	
 	timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(checkSelection:) userInfo:nil repeats:YES];
+	
+	//if selection is highlighted, correct highlight
+	[self correctHighlight];
 }
 
 - (IBAction)fontDown:(id)sender {
@@ -422,6 +446,9 @@
 	[_changWeiBo stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.execCommand('fontSize', false, '%i')", size]];
 	
 	timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(checkSelection:) userInfo:nil repeats:YES];
+	
+	//if selection is highlighted, correct highlight
+	[self correctHighlight];
 }
 
 // These methods are for Step 7 & 8
@@ -452,11 +479,23 @@
 		
 		[_changWeiBo stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.execCommand('fontName', false, '%@')", selectedButtonTitle]];
 		NSLog(@"The font name is set to : %@",[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.queryCommandValue('fontName')"]);
-	}	else {
+	}	else if ([actionSheet.title isEqualToString:@"Select a font color"]){
 		//change button view to indicate selection
 		[_colorPicker setBackgroundImage:[UIImage imageNamed:@"colorWheel.png"] forState:UIControlStateNormal];
 		
 		[_changWeiBo stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.execCommand('foreColor', false, '%@')", selectedButtonTitle]];
+	} else if ([actionSheet.title isEqualToString:NSLocalizedString(@"choose a method", @"Prompt to choose photo options")]) {
+		if (buttonIndex != actionSheet.cancelButtonIndex) {
+			
+			imagePicker = [[UIImagePickerController alloc] init];
+			imagePicker.sourceType = [[sources objectAtIndex:buttonIndex] integerValue];
+			imagePicker.delegate = self;
+			imagePicker.allowsEditing = YES;
+			
+			UIViewController *vc = [[[UIApplication sharedApplication] keyWindow] rootViewController];
+			[vc presentViewController:imagePicker animated:YES completion:nil];
+		}
+		
 	}
 }
 
@@ -472,91 +511,91 @@
 }
 
 // These methods are for Step 10
-- (IBAction)insertImage:(id)sender {
-	//change button view to indicate selection
-	[_imagePicker setBackgroundImage:[UIImage imageNamed:@"cameraIconH.png"] forState:UIControlStateNormal];
-	
-	//before the image picker overtake current view, store the caret position, or it resets
-	NSString* js = @"getInputSelection(document.getElementById('content'))";
-	[_changWeiBo stringByEvaluatingJavaScriptFromString:js];
-	
-	imagePickerController = [[FDTakeController alloc]init];
-	imagePickerController.delegate = self;
-	imagePickerController.allowsEditingPhoto = YES;
-	[imagePickerController takePhotoOrChooseFromLibrary];
-}
-
 static int i = 0;
 
-- (void)takeController:(FDTakeController *)controller gotPhoto:(UIImage *)photo withInfo:(NSDictionary *)info{
-	NSLog(@"An image is inserted:");
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+	[picker dismissViewControllerAnimated:YES completion:nil];
+	
+	_changWeiBo.keyboardDisplayRequiresUserAction = NO;
+	[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.getElementById('content').focus()"];
+	_changWeiBo.keyboardDisplayRequiresUserAction = YES;
+	
 	// Obtain the path to save to
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex:0];
 	NSString *imagePath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"photo%i.png", i]];
 	
-	// Extract image from the picker and save it
-	NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
-	if ([mediaType isEqualToString:@"public.image"]){
-		UIImage *editedImage = [info objectForKey:UIImagePickerControllerEditedImage];
-		UIImage *image = [[UIImage alloc]initWithCGImage:editedImage.CGImage scale:1.0 orientation:UIImageOrientationUp];
-		
-		// Save it to the camera roll / saved photo album
-		BOOL isChosenFromLibrary = [(NSNumber*)[info objectForKey:@"isChosenFromLibrary"] boolValue];
-		if (!isChosenFromLibrary){
-			//when the image is shot in portrait, the image shot needs a 90 degree rotation.
-			if (image.imageOrientation != UIImageOrientationUp){
-				
-			}
-			
-			//if it is derived from a camera shot
-			UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
-		}
-		
-		CGFloat ratio = image.size.height/image.size.width;
-		UIImage *scaledImage = [image scaleToSize:CGSizeMake(290.0f, 290.0f*ratio)];
-		NSData *data = UIImagePNGRepresentation(scaledImage);
-		//NSData *data = UIImagePNGRepresentation(image);
-		[data writeToFile:imagePath atomically:YES];
-		
-		NSLog(@"%@ with info: %@ and orientation:%i",image, info,image.imageOrientation);
-	}
+	NSAssert([[info objectForKey:UIImagePickerControllerMediaType] isEqualToString:(NSString *)kUTTypeImage], @"Unhandled type: %@", [info objectForKey:UIImagePickerControllerMediaType]);
 	
-	//allow me to programmatically bring up keyboard
-	_changWeiBo.keyboardDisplayRequiresUserAction = NO;
-	//move caret to previous position before inserting any image
-	NSString* js = [NSString stringWithFormat:@"setInputSelection(document.getElementById('content'),%i,%i)",_changWeiBo.caretPosStart.integerValue,_changWeiBo.caretPosEnd.integerValue];
-	
-	//NSString* js= @"placeCaretAtEnd(document.getElementById('content'))";
-	
-	[_changWeiBo stringByEvaluatingJavaScriptFromString:js];
-	
-	[_changWeiBo stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.execCommand('insertImage', false, '%@')", imagePath]];
-	
-	//disallow me to programmatically bring up keyboard
-	_changWeiBo.keyboardDisplayRequiresUserAction = YES;
-	
+	UIImage* img = (UIImage*)[info objectForKey:UIImagePickerControllerEditedImage];
+	CGFloat ratio = img.size.height/img.size.width;
+	UIImage *scaledImage = [img scaleToSize:CGSizeMake(290.0f, 290.0f*ratio)];
+	NSData *data = UIImagePNGRepresentation(scaledImage);
+	[data writeToFile:imagePath atomically:YES];
+	[_changWeiBo stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"insertImage('%@')",imagePath]];
 	i++;
 	
-	//change button view to indicate selection
-	[_imagePicker setBackgroundImage:[UIImage imageNamed:@"cameraIcon.png"] forState:UIControlStateNormal];
+	NSLog(@"An image is inserted.");
 	
 }
 
-- (void)takeController:(FDTakeController *)controller didCancelAfterAttempting:(BOOL)madeAttempt
-{
-	NSLog(@"didCancelAfterAttempting, %@",madeAttempt?@"YES":@"NO");
-	//allow me to programmatically bring up keyboard
-	_changWeiBo.keyboardDisplayRequiresUserAction = NO;
-	//NSString* js =@"document.getElementById('content').focus()";
-	NSString* js = [NSString stringWithFormat:@"setInputSelection(document.getElementById('content'),%i,%i)",_changWeiBo.caretPosStart.integerValue,_changWeiBo.caretPosEnd.integerValue];
-	[_changWeiBo stringByEvaluatingJavaScriptFromString:js];
+- (void)setUpInsertImageActionSheet {
+	//set up action sheet
+	sources = [[NSMutableArray alloc]init];
+	buttonTitles = [[NSMutableArray alloc]init];
 	
-	//disallow me to programmatically bring up keyboard
-	_changWeiBo.keyboardDisplayRequiresUserAction = YES;
+	if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+		[sources addObject:[NSNumber numberWithInteger:UIImagePickerControllerSourceTypeCamera]];
+		[buttonTitles addObject:NSLocalizedString(@"takePhoto", @"Option to take photo using camera")];
+	}
+	if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
+		[sources addObject:[NSNumber numberWithInteger:UIImagePickerControllerSourceTypePhotoLibrary]];
+		[buttonTitles addObject:NSLocalizedString(@"chooseFromLibrary", @"Option to select photo/video from library")];
+	}
+	else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
+		[sources addObject:[NSNumber numberWithInteger:UIImagePickerControllerSourceTypeSavedPhotosAlbum]];
+		[buttonTitles addObject:NSLocalizedString(@"chooseFromPhotoRoll", @"Option to select photo from photo roll")];
+	}
+	
+	NSLog(@"sources:%@",sources);
+	if ([sources count]) {
+		UIActionSheet* actionSheet = [[UIActionSheet alloc]
+												initWithTitle:NSLocalizedString(@"choose a method", @"Prompt to choose photo options")
+												delegate:self
+												cancelButtonTitle:nil
+												destructiveButtonTitle:nil
+												otherButtonTitles:nil];
+		for (NSString *title in buttonTitles)
+			[actionSheet addButtonWithTitle:title];
+		[actionSheet addButtonWithTitle:NSLocalizedString(@"cancel", @"Decline to proceed with operation")];
+		actionSheet.cancelButtonIndex = sources.count;
+		
+		// If on iPad use the present rect and pop over style.
+		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+			[actionSheet showFromRect:self.popOverPresentRect inView:[self presentingViewController].view animated:YES];
+		}
+		else {
+			// Otherwise use iPhone style action sheet presentation.
+			[actionSheet showInView:self.view];
+		}
+		
+	} else {
+		NSString *str = NSLocalizedString(@"noSources", @"There are no sources available to select a photo");
+		[[[UIAlertView alloc] initWithTitle:nil
+											 message:str
+											delegate:self
+								cancelButtonTitle:@"cancel"
+								otherButtonTitles:nil] show];
+	}
+}
+
+- (IBAction)insertImage:(id)sender {
+	[_changWeiBo stringByEvaluatingJavaScriptFromString:@"prepareInsertImage()"];
+	
+	[self setUpInsertImageActionSheet];
 	
 	//change button view to indicate selection
-	[_imagePicker setBackgroundImage:[UIImage imageNamed:@"cameraIcon.png"] forState:UIControlStateNormal];
+	[_imagePickerBtn setBackgroundImage:[UIImage imageNamed:@"cameraIcon.png"] forState:UIControlStateNormal];
 }
 
 #pragma Completion Operation Methods
@@ -749,9 +788,12 @@ static int i = 0;
 	NSLog(@"checkPoints,sCEnd");
 }
 
-- (IBAction)dismissWebViewKeyboard : (id)sender {	
-	NSString* js = @"getInputSelection(document.getElementById('content'))";
+- (IBAction)insertHorizontalRule:(id)sender{
+	NSString* js =@"insertHorizontalRule()";
 	[_changWeiBo stringByEvaluatingJavaScriptFromString:js];
+}
+
+- (IBAction)dismissWebViewKeyboard : (id)sender {
 	[_changWeiBo stringByEvaluatingJavaScriptFromString:@"document.activeElement.blur()"];
 }
 

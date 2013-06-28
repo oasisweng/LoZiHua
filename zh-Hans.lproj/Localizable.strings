@@ -38,3 +38,30 @@
 
 /* completion view uploading prompt */
 "uploading message" = "正在上传...";
+
+/* Decline to proceed with operation */
+"cancel" = "取消";
+
+/* Option to select photo from library */
+"chooseFromLibrary" = "从相册选择";
+
+/* Option to select photo from photo roll */
+"chooseFromPhotoRoll" = "从相册选择";
+
+/* There are no sources available to select a photo */
+"noSources" = "没有照片可选";
+
+/* Option to take photo using camera */
+"takePhoto" = "拍照";
+
+/* Option to take video using camera */
+"takeVideo" = "拍视频";
+
+/* Prompt to choose photo options */
+"choose a method" = "选择方式";
+
+/* Prompt of successful save First line */
+"successful save first line" = "长微博创建成功!";
+
+/* Prompt of successful save Second Line */
+"successful save second line" = "图片已保存!";

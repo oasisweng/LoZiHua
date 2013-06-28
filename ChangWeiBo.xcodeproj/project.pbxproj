@@ -46,11 +46,7 @@
 		35574C0517742DD000619FD6 /* SBJsonBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 35574BED1772B68000619FD6 /* SBJsonBase.m */; };
 		35574C0617742DD000619FD6 /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 35574BEF1772B68000619FD6 /* SBJsonParser.m */; };
 		35574C0717742DD000619FD6 /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 35574BF11772B68000619FD6 /* SBJsonWriter.m */; };
-		35574C0917743C1500619FD6 /* webview-script.js in Sources */ = {isa = PBXBuildFile; fileRef = 35574BFA1772B6C000619FD6 /* webview-script.js */; };
-		35574C0A17743C1500619FD6 /* NativeBridge.js in Sources */ = {isa = PBXBuildFile; fileRef = 35574BF91772B6C000619FD6 /* NativeBridge.js */; };
-		35574C0C17754FE000619FD6 /* jquery-1.10.1.min.js in Sources */ = {isa = PBXBuildFile; fileRef = 35574C0B17754FE000619FD6 /* jquery-1.10.1.min.js */; };
 		35574C0D1775500300619FD6 /* jquery-1.10.1.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 35574C0B17754FE000619FD6 /* jquery-1.10.1.min.js */; };
-		35574C0F1775510200619FD6 /* jquery.caret.1.02.min.js in Sources */ = {isa = PBXBuildFile; fileRef = 35574C0E1775510100619FD6 /* jquery.caret.1.02.min.js */; };
 		35574C101775511F00619FD6 /* jquery.caret.1.02.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 35574C0E1775510100619FD6 /* jquery.caret.1.02.min.js */; };
 		356464231749F3780064C100 /* changWeiBoIcon57*57.png in Resources */ = {isa = PBXBuildFile; fileRef = 356464221749F3780064C100 /* changWeiBoIcon57*57.png */; };
 		356464251749F37B0064C100 /* changWeiBoIcon114*114.png in Resources */ = {isa = PBXBuildFile; fileRef = 356464241749F37B0064C100 /* changWeiBoIcon114*114.png */; };
@@ -118,7 +114,6 @@
 		35B49001173B501B00CC8637 /* completeBtnFill.png in Resources */ = {isa = PBXBuildFile; fileRef = 35B49000173B501B00CC8637 /* completeBtnFill.png */; };
 		35B75E19175F00A80088D20C /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B75E18175F00A80088D20C /* libicucore.dylib */; };
 		35D42732172CE74D002E9FBD /* template.html in Resources */ = {isa = PBXBuildFile; fileRef = 35D4272E172CE74D002E9FBD /* template.html */; };
-		35D4273B172E0B99002E9FBD /* FDTake.strings in Resources */ = {isa = PBXBuildFile; fileRef = 35D4273D172E0B99002E9FBD /* FDTake.strings */; };
 		35D4273F172E1036002E9FBD /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35D4273E172E1036002E9FBD /* MobileCoreServices.framework */; };
 		35D6DF1A173B551600CA193C /* doneBtn.png in Resources */ = {isa = PBXBuildFile; fileRef = 35D6DF19173B551600CA193C /* doneBtn.png */; };
 		35D6DF1C173B581E00CA193C /* inputAccessoryFill.png in Resources */ = {isa = PBXBuildFile; fileRef = 35D6DF1B173B581E00CA193C /* inputAccessoryFill.png */; };
@@ -140,7 +135,6 @@
 		35DA45F1172F75F600BF94DC /* LLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 356969E51728C3B00064DFB1 /* LLViewController.m */; };
 		35DA45F2172F75F600BF94DC /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 35D4272B172CE74D002E9FBD /* UIImage+Resize.m */; };
 		35DA45F4172F75F600BF94DC /* RTEGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 35D4272D172CE74D002E9FBD /* RTEGestureRecognizer.m */; };
-		35DA45F5172F75F600BF94DC /* FDTakeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 35D42737172E0B5F002E9FBD /* FDTakeController.m */; };
 		35DA45F6172F760A00BF94DC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 356969D21728C3AF0064DFB1 /* main.m */; };
 /* End PBXBuildFile section */
 
@@ -203,7 +197,6 @@
 		356464241749F37B0064C100 /* changWeiBoIcon114*114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "changWeiBoIcon114*114.png"; sourceTree = "<group>"; };
 		356464291749F5C00064C100 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "zh-Hans"; path = "zh-Hans.lproj/MainStoryboard_iPhone.storyboard"; sourceTree = "<group>"; };
 		3564642A1749F5C00064C100 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "zh-Hans"; path = "zh-Hans.lproj/MainStoryboard_iPad.storyboard"; sourceTree = "<group>"; };
-		3564642B1749F5C00064C100 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/FDTake.strings"; sourceTree = "<group>"; };
 		3564642D1749F5C00064C100 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		3564642E1749F5C10064C100 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		356464311749F9AB0064C100 /* supportBanner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = supportBanner.png; sourceTree = "<group>"; };
@@ -288,9 +281,6 @@
 		35D4272C172CE74D002E9FBD /* RTEGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTEGestureRecognizer.h; sourceTree = "<group>"; };
 		35D4272D172CE74D002E9FBD /* RTEGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTEGestureRecognizer.m; sourceTree = "<group>"; };
 		35D4272E172CE74D002E9FBD /* template.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = template.html; sourceTree = "<group>"; };
-		35D42736172E0B5F002E9FBD /* FDTakeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDTakeController.h; sourceTree = "<group>"; };
-		35D42737172E0B5F002E9FBD /* FDTakeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDTakeController.m; sourceTree = "<group>"; };
-		35D4273C172E0B99002E9FBD /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/FDTake.strings; sourceTree = "<group>"; };
 		35D4273E172E1036002E9FBD /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		35D6DF19173B551600CA193C /* doneBtn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = doneBtn.png; sourceTree = "<group>"; };
 		35D6DF1B173B581E00CA193C /* inputAccessoryFill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = inputAccessoryFill.png; sourceTree = "<group>"; };
@@ -635,9 +625,10 @@
 		356969CD1728C3AF0064DFB1 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				35574BF81772B68700619FD6 /* JSON */,
 				356464311749F9AB0064C100 /* supportBanner.png */,
 				35499B8F176C090600A537D1 /* supportBannerBig.JPG */,
+				3564643D174A00F70064C100 /* Localizable.strings */,
+				35574BF81772B68700619FD6 /* JSON */,
 				356464281749F3C30064C100 /* launchImages */,
 				356464271749F3B60064C100 /* backgrounds */,
 				356464261749F3A20064C100 /* icons */,
@@ -645,7 +636,6 @@
 				350CEAB11740A912003A9AF0 /* normalStateIcons */,
 				350CEAB21740A91E003A9AF0 /* disabledStateIcons */,
 				3538125B1744CF62007C7869 /* shareIcon */,
-				35D4273A172E0B68002E9FBD /* FDTake */,
 				35D4272E172CE74D002E9FBD /* template.html */,
 				35574C0E1775510100619FD6 /* jquery.caret.1.02.min.js */,
 				35574C0B17754FE000619FD6 /* jquery-1.10.1.min.js */,
@@ -653,7 +643,6 @@
 				35574BF91772B6C000619FD6 /* NativeBridge.js */,
 				356969CE1728C3AF0064DFB1 /* ChangWeiBo-Info.plist */,
 				350CEAD51741FA03003A9AF0 /* systemProperty.plist */,
-				3564643D174A00F70064C100 /* Localizable.strings */,
 				356969CF1728C3AF0064DFB1 /* InfoPlist.strings */,
 				356969D21728C3AF0064DFB1 /* main.m */,
 				356969D41728C3B00064DFB1 /* ChangWeiBo-Prefix.pch */,
@@ -678,16 +667,6 @@
 				356969F61728C3B00064DFB1 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		35D4273A172E0B68002E9FBD /* FDTake */ = {
-			isa = PBXGroup;
-			children = (
-				35D4273D172E0B99002E9FBD /* FDTake.strings */,
-				35D42736172E0B5F002E9FBD /* FDTakeController.h */,
-				35D42737172E0B5F002E9FBD /* FDTakeController.m */,
-			);
-			name = FDTake;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -777,7 +756,6 @@
 				35696A211728EBA60064DFB1 /* LLInputMethodAttachView.xib in Resources */,
 				35696A951729603A0064DFB1 /* weibo48x48.png in Resources */,
 				35D42732172CE74D002E9FBD /* template.html in Resources */,
-				35D4273B172E0B99002E9FBD /* FDTake.strings in Resources */,
 				35DA45EE172F6A3900BF94DC /* LLOptionsView.xib in Resources */,
 				35B49001173B501B00CC8637 /* completeBtnFill.png in Resources */,
 				35D6DF1A173B551600CA193C /* doneBtn.png in Resources */,
@@ -866,8 +844,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				35574C0917743C1500619FD6 /* webview-script.js in Sources */,
-				35574C0A17743C1500619FD6 /* NativeBridge.js in Sources */,
 				35574C0517742DD000619FD6 /* SBJsonBase.m in Sources */,
 				35574C0617742DD000619FD6 /* SBJsonParser.m in Sources */,
 				35574C0717742DD000619FD6 /* SBJsonWriter.m in Sources */,
@@ -879,11 +855,8 @@
 				35DA45F1172F75F600BF94DC /* LLViewController.m in Sources */,
 				35DA45F2172F75F600BF94DC /* UIImage+Resize.m in Sources */,
 				35DA45F4172F75F600BF94DC /* RTEGestureRecognizer.m in Sources */,
-				35DA45F5172F75F600BF94DC /* FDTakeController.m in Sources */,
 				3512A4B3175F151B0028B427 /* LLCompletionViewController.m in Sources */,
 				35574C011772C77900619FD6 /* LLChangWeiBo.m in Sources */,
-				35574C0C17754FE000619FD6 /* jquery-1.10.1.min.js in Sources */,
-				35574C0F1775510200619FD6 /* jquery.caret.1.02.min.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -965,15 +938,6 @@
 				3564642E1749F5C10064C100 /* zh-Hans */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		35D4273D172E0B99002E9FBD /* FDTake.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				35D4273C172E0B99002E9FBD /* en */,
-				3564642B1749F5C00064C100 /* zh-Hans */,
-			);
-			name = FDTake.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

@@ -8,10 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
+#import <MobileCoreServices/UTCoreTypes.h>
 #import "LLCompletionViewController.h"
 #import "UIImage+Resize.h"
 #import "RTEGestureRecognizer.h"
-#import "FDTakeController.h"
 #import "LLChangWeiBo.h"
 
 #define LLCoreTextAlignmentLeft 1
@@ -19,12 +19,13 @@
 #define LLCoreTextAlignmentRight 3
 #define BackUpFileName @"backup.html"
 
-@interface LLViewController : UIViewController<UIActionSheetDelegate,UIWebViewDelegate,UIGestureRecognizerDelegate,FDTakeDelegate,LLCompletionDelegate>{
-	NSTimer *timer;
+@interface LLViewController : UIViewController<UIActionSheetDelegate,UIWebViewDelegate,UIGestureRecognizerDelegate,UINavigationControllerDelegate, UIImagePickerControllerDelegate,LLCompletionDelegate>{
+	NSTimer *timer; // main timer for checkSelection
 }
 
 @property (strong, nonatomic) IBOutlet LLChangWeiBo *changWeiBo;
 @property (strong, nonatomic) LLCompletionViewController* cvc;
+@property (nonatomic, readwrite) CGRect popOverPresentRect; // used in presentPopoverFromRect on iPads
 @property (strong, nonatomic) NSTimer* timer;
 
 // Input Accessory View Catagory
@@ -32,7 +33,7 @@
 @property (strong, nonatomic) IBOutlet UIView *optionsView;
 @property (strong, nonatomic) IBOutlet UIButton *colorPicker;
 @property (strong, nonatomic) IBOutlet UIButton *fontPicker;
-@property (strong, nonatomic) IBOutlet UIButton *imagePicker;
+@property (strong, nonatomic) IBOutlet UIButton *imagePickerBtn;
 @property (strong, nonatomic) IBOutlet UIButton *boldBtn;
 @property (strong, nonatomic) IBOutlet UIButton *italicBtn;
 @property (strong, nonatomic) IBOutlet UIButton *strikeBtn;
@@ -70,6 +71,7 @@
 - (IBAction)setStrike:(id)sender;
 - (IBAction)setHighlight:(id)sender;
 - (IBAction)dismissWebViewKeyboard : (id)sender;
+- (IBAction)insertHorizontalRule:(id)sender;
 
 //notifications
 - (void)menuWillShow:(NSNotification *)notification;

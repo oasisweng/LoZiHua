@@ -13,7 +13,8 @@
 @end
 
 @implementation LLCompletionViewController
-@synthesize promptMessage = _promptMessage;
+@synthesize promptMessageFirst = _promptMessageFirst;
+@synthesize promptMessageSecond = _promptMessageSecond;
 @synthesize resultMessage = _resultMessage;
 @synthesize imageToPass = _imageToPass;
 @synthesize delegate;
@@ -30,12 +31,23 @@
 - (void)viewWillAppear:(BOOL)animated{
 	[_resultMessage setHidden:YES];
 	[_resultMessage setText:@""];
+	
 }
 
 - (void)viewDidLoad
 {
 	[super viewDidLoad];
-	// Do any additional setup after loading the view.
+	// Localize prompt title
+	NSAttributedString* firstAttrStr = _promptMessageFirst.attributedText;
+	NSDictionary* firstAttributes = [self iterateAttributesForString:firstAttrStr];
+	NSString*firstLinePrompt = NSLocalizedString(@"successful save first line", @"Prompt of successful save First line");
+	
+	NSAttributedString* secondAttrStr = _promptMessageSecond.attributedText;
+	NSDictionary* secondAttributes = [self iterateAttributesForString:secondAttrStr];
+	NSString* secondLinePrompt = NSLocalizedString(@"successful save second line", @"Prompt of successful save Second Line");
+	
+	_promptMessageFirst.attributedText = [[NSAttributedString alloc]initWithString:firstLinePrompt attributes:firstAttributes];
+	_promptMessageSecond.attributedText = [[NSAttributedString alloc]initWithString:secondLinePrompt attributes:secondAttributes];
 }
 
 - (void)didReceiveMemoryWarning
@@ -43,6 +55,23 @@
 	[super didReceiveMemoryWarning];
 	// Dispose of any resources that can be recreated.
 }
+
+#pragma Miscs
+- (NSDictionary*)iterateAttributesForString: (NSAttributedString *) string  {
+	NSDictionary *attributeDict;
+	NSRange effectiveRange = { 0, 0 };
+	NSRange range;
+	range = NSMakeRange (NSMaxRange(effectiveRange),
+								[string length] - NSMaxRange(effectiveRange));
+	attributeDict = [string attributesAtIndex: range.location
+							  longestEffectiveRange: &effectiveRange
+												 inRange: range];
+	NSLog (@"Range: %@  Attributes: %@",
+			 NSStringFromRange(effectiveRange), attributeDict);
+	
+	return attributeDict;
+}
+
 
 -(void) completionViewDismiss{
 	[_resultMessage setHidden:YES];

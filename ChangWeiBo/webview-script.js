@@ -31,7 +31,16 @@ function getInputSelection(el) {
  range.select();
  }
  }
- 
+
+function createHTMLNode(htmlCode, tooltip) {
+	// create html node
+	var htmlNode = document.createElement('span');
+	htmlNode.innerHTML = htmlCode
+	htmlNode.className = 'treehtml';
+	htmlNode.setAttribute('title', tooltip);
+	return htmlNode;
+}
+
  function returnResult(functionName,args){
  NativeBridge.call(functionName,args);
  }

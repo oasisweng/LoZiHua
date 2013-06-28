@@ -56,11 +56,9 @@
 				// Re-insert the image
 				document.execCommand('insertImage', false, imageSrc);
 			}
-			
-			function insertLineBreak(){
-				var doc=document.getElementById("content");
-				var tr=document.createTextRange();
-				tr.text += "<br/>-------------------------------<br/>";
+						
+			function insertHorizontalRule(){
+				document.execCommand("InsertHorizontalRule",true,"aa");
 			}
 		
 			function placeCaretAtEnd(el) {
@@ -79,6 +77,36 @@
 					textRange.collapse(false);
 					textRange.select();
 				}
+			}
+			
+			this.prepareInsertImage = function(){
+				try{
+					backuprange();
+				}
+				catch(exc){
+					log('prepareInsertImage: ' + exc);
+				}
+			}
+			
+			this.insertImage = function(imgPath){
+				try{
+					restorerange();
+					document.execCommand("InsertImage",true,imgPath);
+				}
+				catch(exc){
+					log('insertImage: ' + exc);
+				}
+			}
+			var focusRange;
+			function backuprange(){
+				var selection = window.getSelection();
+				focusRange = selection.getRangeAt(0);
+				focusRange.setEnd(focusRange.startContainer, focusRange.startOffset);
+			}
+			function restorerange(){
+				var selection = window.getSelection();
+				selection.removeAllRanges();
+				selection.addRange(focusRange);
 			}
 			</script>
 	</head>

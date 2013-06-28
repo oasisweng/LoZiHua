@@ -17,7 +17,8 @@
 @property (strong, nonatomic) UIImage* imageToPass;
 @property (strong, nonatomic) id<LLCompletionDelegate> delegate;
 
-@property (strong, nonatomic) IBOutlet UILabel *promptMessage;
+@property (strong, nonatomic) IBOutlet UILabel *promptMessageFirst;
+@property (strong, nonatomic) IBOutlet UILabel *promptMessageSecond;
 @property (strong, nonatomic) IBOutlet UILabel *resultMessage;
 
 - (IBAction)noneUIShareToSinaWeiboClickHandler:(UIButton *)sender;
