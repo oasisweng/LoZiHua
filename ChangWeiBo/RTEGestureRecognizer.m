@@ -9,26 +9,32 @@
 #import "RTEGestureRecognizer.h"
 
 @implementation RTEGestureRecognizer
-@synthesize touchesBeganCallback;
+@synthesize touchesMovedCallback;
 @synthesize touchesEndedCallback;
+@synthesize touchesBeganCallback;
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
 	if (touchesBeganCallback)
 		touchesBeganCallback(touches, event);
+	else
+		[super touchesBegan:touches withEvent:event];
+	
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	if (touchesMovedCallback)
+		touchesMovedCallback(touches, event);
+	else
+		[super touchesMoved:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	if (touchesEndedCallback)
+	if  (touchesEndedCallback)
 		touchesEndedCallback(touches, event);
-	
-}
-
-- (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)preventingGestureRecognizer {
-	if ([[preventingGestureRecognizer description] rangeOfString:@"UIScrollViewPanGestureRecognizer"].location != NSNotFound)
-		return NO;
-	return [super canBePreventedByGestureRecognizer:preventingGestureRecognizer];
+	else
+		[super touchesEnded:touches withEvent:event];
 }
 
 @end

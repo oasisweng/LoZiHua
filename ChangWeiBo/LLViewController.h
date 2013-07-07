@@ -77,5 +77,7 @@
 - (void)menuWillShow:(NSNotification *)notification;
 - (void)keyboardWillShow:(NSNotification *)notification;
 - (void)keyboardWillHide:(NSNotification *)notification;
-
+- (void)menuControllerWillShow:(NSNotification *)notification;
+- (void)menuControllerWillHide:(NSNotification *)notification;
+- (void)longPressChanged:(RTEGestureRecognizer*)longPressGestureRecognizer;
 @end

@@ -22,21 +22,20 @@
 											  
 											  // If the touch is out of the content div then simply give the div focus
 											  document.getElementById('content').focus();
-											
 											  }, false);
 
-			function moveImageAtTo(x, y, newX, newY) {
+			var imageSrc;
+			function prepareMoveImage(x,y){
 				// Get our required variables
 				var element  = document.elementFromPoint(x, y);
 				if (element.toString().indexOf('Image') == -1) {
 					// Attempt to move an image which doesn't exist at the point
 					return;
 				}
-				var caretRange = document.caretRangeFromPoint(newX, newY);
 				var selection = window.getSelection();
 				
 				// Save the image source so we know this later when we need to re-insert it
-				var imageSrc = element.src;
+				imageSrc = element.src;
 				
 				// Set the selection to the range of the image, so we can delete it
 				var nodeRange = document.createRange();
@@ -46,6 +45,25 @@
 				
 				// Delete the image
 				document.execCommand('delete');
+				
+				NativeBridge.call("imageRecognizer",[imageSrc],null);
+			}
+			
+			function moveImageTo(newX, newY) {
+				if (newX<0){
+					newX = 0;
+				}
+				if (newX>306){
+					newX = 306;
+				}
+				if (newY<0){
+					newY = 0;
+				}
+				if (newY>480){
+					newY = 480;
+				}
+				
+				var caretRange = document.caretRangeFromPoint(newX, newY);
 				
 				// Set the selection to the caret range, so we can then add the image
 				var selection = window.getSelection();

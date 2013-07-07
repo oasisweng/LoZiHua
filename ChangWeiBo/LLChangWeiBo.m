@@ -15,8 +15,8 @@
 
 }
 
-@synthesize caretPosEnd;
-@synthesize caretPosStart;
+@synthesize imageWasDeleted;
+@synthesize imageDeleted;
 
 - (id)init{
 	self = [super init];
@@ -37,6 +37,8 @@
 		 self.layer.shadowOpacity = 0.9f;
 		 self.layer.shadowOffset = CGSizeMake(1, 1);
 		 self.scrollView.bounces = NO;
+		 self.imageWasDeleted = [NSNumber numberWithBool:NO];
+		 self.imageDeleted = nil;
     }
     return self;
 }
@@ -102,14 +104,22 @@
 	//	var sel = getInputSelection(t);
 	//	setInputSelection(t, sel.start, sel.end);
 	
-	if ([functionName isEqualToString:@"storeCaretPosition"]) {
-		caretPosStart = [(NSNumber*)[args objectAtIndex:0] copy];
-		caretPosEnd= [(NSNumber*)[args objectAtIndex:1] copy];
-		NSLog(@"caret pos is [%i,%i]",caretPosStart.integerValue,caretPosEnd.integerValue);
-	} else if ([functionName isEqualToString:@"setCaretPosition"]) {
-		NSNumber* start = [(NSNumber*)[args objectAtIndex:0] copy];
-		NSNumber* end= [(NSNumber*)[args objectAtIndex:1] copy];
-		NSLog(@"caret pos is set to [%i,%i]",start.integerValue,end.integerValue);
+	if ([functionName isEqualToString:@"imageRecognizer"]){
+		NSString* imagePath = (NSString*)[args objectAtIndex:0];
+		//process %2 off the imagePath
+		if ([imagePath rangeOfString:@"%20"].location!=NSNotFound){
+			imagePath = [imagePath stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+		}
+		if ([imagePath rangeOfString:@"file://"].location!=NSNotFound){
+			imagePath = [imagePath stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+		}
+		if ([[NSFileManager defaultManager]fileExistsAtPath:imagePath]){
+			imageDeleted = [[UIImage alloc]initWithContentsOfFile:imagePath];
+		} else {
+			NSLog(@"File did not exist");
+		}
+		imageWasDeleted = [NSNumber numberWithBool:YES];
+		NSLog(@"Retrieve image %@, imagePath %@",imageDeleted,imagePath);
 	} else {
 		NSLog(@"Unimplemented method '%@'",functionName);
 	}

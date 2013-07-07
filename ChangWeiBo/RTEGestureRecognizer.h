@@ -11,10 +11,13 @@
 
 typedef void (^TouchEventBlock)(NSSet * touches, UIEvent * event);
 
-@interface RTEGestureRecognizer : UIGestureRecognizer {
-	TouchEventBlock touchesBeganCallback;
+@interface RTEGestureRecognizer : UILongPressGestureRecognizer {
+	TouchEventBlock touchesMovedCallback;
 	TouchEventBlock touchesEndedCallback;
+	TouchEventBlock touchesBeganCallback;
 }
-@property(copy) TouchEventBlock touchesBeganCallback;
+@property(copy) TouchEventBlock touchesMovedCallback;
 @property(copy) TouchEventBlock touchesEndedCallback;
+@property(copy) TouchEventBlock touchesBeganCallback;
+
 @end

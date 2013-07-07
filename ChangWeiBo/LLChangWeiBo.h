@@ -12,8 +12,8 @@
 
 
 @interface LLChangWeiBo : UIWebView<UIWebViewDelegate>
-@property (nonatomic,strong) NSNumber* caretPosStart;
-@property (nonatomic,strong) NSNumber* caretPosEnd;
+@property (nonatomic,strong) NSNumber* imageWasDeleted;
+@property (nonatomic,strong) UIImage* imageDeleted;
 
 - (void)handleCall:(NSString*)functionName callbackId:(int)callbackId args:(NSArray*)args;
 - (void)returnResult:(int)callbackId args:(id)firstObj, ...;

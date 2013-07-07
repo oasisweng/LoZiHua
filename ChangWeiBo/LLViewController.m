@@ -40,6 +40,10 @@
 	//Variables for view management
 	CGRect originalChangWeiBoFrame;
 	
+	//Variables for Image Movement
+	BOOL imageMoving;
+	UIImageView* imageDeletedTmbNail;
+	
 }
 
 @synthesize changWeiBo = _changWeiBo;
@@ -82,19 +86,15 @@
 	return _popOverPresentRect;
 }
 
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
-	
-	// if the gesture recognizers are on different views, don't allow simultaneous recognition
-	if (gestureRecognizer.view != otherGestureRecognizer.view)
-		return NO;
-	
-	// if either of the gesture recognizers is the long press, don't allow simultaneous recognition
-	if ([gestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]] || [otherGestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]])
-		return NO;
-	
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
 	return YES;
 }
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch{
+	NSLog(@"gesture %@",gestureRecognizer);
+	return YES;
+}
+
 
 - (UIColor *)colorFromRGBValue:(NSString *)rgb { // General format is 'rgb(red, green, blue)'
 	if ([rgb rangeOfString:@"rgb"].location == NSNotFound)
@@ -163,49 +163,17 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuWillShow:) name:UIMenuControllerWillShowMenuNotification object:nil];
 	
+	//Add Notification To Modify Arrow Direction of Menu Controller
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuControllerWillShow:) name:UIMenuControllerWillShowMenuNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuControllerWillHide:) name:UIMenuControllerWillHideMenuNotification object:nil];
+	
 	//Step 4: Add checkSelection Methods To Validate Bar Buttons
 	timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(checkSelection:) userInfo:nil repeats:YES];
 	
 	//Step 11: Moving images
-	RTEGestureRecognizer *tapInterceptor = [[RTEGestureRecognizer alloc] init];	
-	tapInterceptor.touchesBeganCallback = ^(NSSet *touches, UIEvent *event) {
-		// Here we just get the location of the touch
-		UITouch *touch = [[event allTouches] anyObject];
-		CGPoint touchPoint = [touch locationInView:_changWeiBo];
-		
-		// What we do here is to get the element that is located at the touch point to see whether or not it is an image
-		NSString *javascript = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).toString()", touchPoint.x, touchPoint.y];
-		NSString *elementAtPoint = [_changWeiBo stringByEvaluatingJavaScriptFromString:javascript];
-		
-		
-		if ([elementAtPoint rangeOfString:@"Image"].location != NSNotFound) {
-			// We set the inital point of the image for use latter on when we actually move it
-			initialPointOfImage = touchPoint;
-			// In order to make moving the image easy we must disable scrolling otherwise the view will just scroll and prevent fully detecting movement on the image.
-			_changWeiBo.scrollView.scrollEnabled = NO;
-		} else {
-			initialPointOfImage = CGPointZero;
-		}
-	};
-	tapInterceptor.touchesEndedCallback = ^(NSSet *touches, UIEvent *event) {
-		// Let's get the finished touch point
-		UITouch *touch = [[event allTouches] anyObject];
-		CGPoint touchPoint = [touch locationInView:self.view];
-		
-		// And move that image!
-		if (touchPoint.x>=0
-			 &touchPoint.x<=_changWeiBo.frame.size.width
-			 &touchPoint.y<=_changWeiBo.frame.size.height
-			 &touchPoint.y>=0){
-		NSString *javascript = [NSString stringWithFormat:@"moveImageAtTo(%f, %f, %f, %f)", initialPointOfImage.x, initialPointOfImage.y, touchPoint.x, touchPoint.y];
-		[_changWeiBo stringByEvaluatingJavaScriptFromString:javascript];
-		}
-		
-		// All done, lets re-enable scrolling
-		_changWeiBo.scrollView.scrollEnabled = YES;
-	};
-	
-	[_changWeiBo.scrollView addGestureRecognizer:tapInterceptor];
+	RTEGestureRecognizer *longPressInterceptor = [[RTEGestureRecognizer alloc] initWithTarget:self action:@selector(longPressChanged:)];
+	longPressInterceptor.delegate = self;
+	[_changWeiBo addGestureRecognizer:longPressInterceptor];
 	
 	//set proper size to _inputAccessoryView for correct display
 	CGRect correctDisplayOfInputAccessoryViewFrame = _inputAccessoryView.frame;
@@ -235,7 +203,6 @@
 	
 	//init support image
 	_supportImage = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"supportBannerBig.JPG"]];
-	
 }
 
 - (void)didReceiveMemoryWarning
@@ -326,6 +293,29 @@
 	//Scroll _changWeiBo to top
 	//[_changWeiBo.scrollView setContentOffset:CGPointMake(0, 0) animated:YES];
 	
+}
+
+- (void)menuControllerWillShow:(NSNotification *)notification{
+	//Remove Will Show Notif
+	[[NSNotificationCenter defaultCenter]removeObserver:self name:UIMenuControllerWillShowMenuNotification object:nil];
+	
+	//Hide the Original View
+	UIMenuController* menuController = [UIMenuController sharedMenuController];
+   CGPoint origin = menuController.menuFrame.origin;
+	CGSize size = menuController.menuFrame.size;
+	CGRect menuFrame;
+	menuFrame.origin = origin;
+	menuFrame.size = size;
+	[menuController setMenuVisible:NO animated:NO];
+	
+	//Modify its Target Rect
+	menuController.arrowDirection = UIMenuControllerArrowUp;
+	[menuController setTargetRect:menuFrame inView:self.view];
+	[menuController setMenuVisible:YES animated:YES];
+	
+}
+- (void)menuControllerWillHide:(NSNotification *)notification{
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(menuControllerWillShow:) name:UIMenuControllerWillShowMenuNotification object:nil];
 }
 
 - (void)removeBar {
@@ -535,7 +525,7 @@ static int i = 0;
 	[_changWeiBo stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"insertImage('%@')",imagePath]];
 	i++;
 	
-	NSLog(@"An image is inserted.");
+	NSLog(@"An image is inserted, image path %@.",imagePath);
 	
 }
 
@@ -786,6 +776,45 @@ static int i = 0;
 	[systemProperty writeToURL:propertyFileURL atomically:YES];
 	
 	NSLog(@"checkPoints,sCEnd");
+}
+
+
+- (void)longPressChanged:(RTEGestureRecognizer*)longPressGestureRecognizer{
+	CGPoint location = [longPressGestureRecognizer locationInView:_changWeiBo];
+	NSLog(@"Long Press Touch Recognized, location %@, state %i", NSStringFromCGPoint(location),longPressGestureRecognizer.state);
+	if (longPressGestureRecognizer.state == UIGestureRecognizerStateBegan){
+	NSString* js = [NSString stringWithFormat:@"prepareMoveImage(%f,%f)",location.x,location.y];
+		[_changWeiBo stringByEvaluatingJavaScriptFromString:js];
+		if ([_changWeiBo.imageWasDeleted boolValue]){
+			imageDeletedTmbNail = [[UIImageView alloc]initWithImage:_changWeiBo.imageDeleted];
+			CGRect frame = imageDeletedTmbNail.frame;
+			frame.size.height = 40;
+			frame.size.width = 40;
+			frame.origin.x = location.x;
+			frame.origin.y = location.y;
+			imageDeletedTmbNail.frame = frame;
+			imageDeletedTmbNail.alpha = 0.5f;
+			[_changWeiBo addSubview:imageDeletedTmbNail];
+		}
+	} else if (longPressGestureRecognizer.state == UIGestureRecognizerStateChanged){
+		if (![_changWeiBo.imageWasDeleted boolValue])
+			[longPressGestureRecognizer setState:UIGestureRecognizerStateEnded];
+	} else if (longPressGestureRecognizer.state == UIGestureRecognizerStateEnded){
+		if ([_changWeiBo.imageWasDeleted boolValue]){
+			NSString* js = [NSString stringWithFormat:@"moveImageTo(%f,%f)",location.x,location.y];
+			[_changWeiBo stringByEvaluatingJavaScriptFromString:js];
+			[_changWeiBo setImageWasDeleted:[NSNumber numberWithBool:NO]];
+			[imageDeletedTmbNail removeFromSuperview];
+			imageDeletedTmbNail = nil;
+		}
+	}
+	
+	if (imageDeletedTmbNail){
+		CGRect frame = imageDeletedTmbNail.frame;
+		frame.origin.x = location.x;
+		frame.origin.y = location.y;
+		imageDeletedTmbNail.frame = frame;
+	}
 }
 
 - (IBAction)insertHorizontalRule:(id)sender{
